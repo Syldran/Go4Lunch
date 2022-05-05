@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Facebook API key -->
+    <string name="facebook_application_id" translatable="false">3154812581513075</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb3154812581513075</string>
+
+    <!-- Twitter API key-->
+    <string name="twitter_consumer_key" translatable="false">JOieOwLaIrFaliGV9pIVCYvGq</string>
+    <string name="twitter_consumer_secret" translatable="false">IdOkjlpxxN3dgP87xuYaZ7DekFuZpsbyVilqyDcTpXLWK2cCZ3</string>
 </resources>
