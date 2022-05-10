@@ -2,6 +2,7 @@ package com.ocproject7.go4lunch.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,7 +11,9 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.databinding.ActivityNavigationBinding;
+import com.ocproject7.go4lunch.manager.UserManager;
 
+import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -26,6 +29,7 @@ public class NavigationActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private AppBarConfiguration mAppBarConfiguration;
     private BottomNavigationView bottomNavigationView;
+    private UserManager userManager = UserManager.getInstance();
     private SharedPreferences mSharedPreferences;
 
     @Override
@@ -35,7 +39,9 @@ public class NavigationActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         initToolbar();
         initNavigation();
-        startSignInActivity();
+        if (!userManager.isCurrentUserLogged()){
+            startSignInActivity();
+        }
     }
 
     private void initToolbar(){
@@ -52,6 +58,21 @@ public class NavigationActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController( this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
         NavigationUI.setupWithNavController(binding.navView, navController);
+        binding.navView.setNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_logout: {
+                    userManager.signOut(this).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()){
+                            startSignInActivity();
+                            Toast.makeText(getApplicationContext(), "LOGOUT SUCCESSFUL", Toast.LENGTH_SHORT).show();
+                        }
+                        else Toast.makeText(this, "LOGOUT FAILED", Toast.LENGTH_LONG).show();
+                    });
+                    binding.drawerLayout.closeDrawer(GravityCompat.START);
+                }
+            }
+            return true;
+        });
     }
 
     @Override
