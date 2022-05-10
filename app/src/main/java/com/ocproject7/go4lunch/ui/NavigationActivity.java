@@ -4,17 +4,17 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.databinding.ActivityNavigationBinding;
-import com.ocproject7.go4lunch.ui.list.ListFragment;
-import com.ocproject7.go4lunch.ui.map.MapFragment;
-import com.ocproject7.go4lunch.ui.workmates.WorkmatesFragment;
+
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +24,8 @@ public class NavigationActivity extends AppCompatActivity {
 
     ActivityNavigationBinding binding;
     private static final int RC_SIGN_IN = 123;
+    private AppBarConfiguration mAppBarConfiguration;
+    private BottomNavigationView bottomNavigationView;
     private SharedPreferences mSharedPreferences;
 
     @Override
@@ -31,34 +33,32 @@ public class NavigationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityNavigationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        replaceFragment(new MapFragment());
+        initToolbar();
+        initNavigation();
         startSignInActivity();
-
-
     }
 
-        private void replaceFragment(Fragment fragment) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_frame,fragment);
-            fragmentTransaction.commit();
+    private void initToolbar(){
+        setSupportActionBar(binding.appBarMain.toolbar);
+    }
 
-            binding.bottomNavigation.setOnItemSelectedListener(item -> {
-                switch (item.getItemId()){
+    private void initNavigation() {
+        bottomNavigationView = findViewById(R.id.bottom_nav_view);
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.bottom_map, R.id.bottom_list, R.id.bottom_workmates)
+                .setOpenableLayout(binding.drawerLayout)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavigationUI.setupActionBarWithNavController( this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        NavigationUI.setupWithNavController(binding.navView, navController);
+    }
 
-                    case R.id.map:
-                        replaceFragment(new MapFragment());
-                        break;
-                    case R.id.list:
-                        replaceFragment(new ListFragment());
-                        break;
-                    case R.id.workmates:
-                        replaceFragment(new WorkmatesFragment());
-                        break;
-                }
-                return true;
-            });
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
     }
 
     private void startSignInActivity() {

@@ -10,4 +10,19 @@
     <!-- Twitter API key-->
     <string name="twitter_consumer_key" translatable="false">JOieOwLaIrFaliGV9pIVCYvGq</string>
     <string name="twitter_consumer_secret" translatable="false">IdOkjlpxxN3dgP87xuYaZ7DekFuZpsbyVilqyDcTpXLWK2cCZ3</string>
+
+    <!-- Navigation -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title"></string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="drawer_lunch">YOUR LUNCH</string>
+    <string name="drawer_settings">SETTINGS</string>
+    <string name="drawer_logout">LOGOUT</string>
+    <string name="bottom_map">Map View</string>
+    <string name="bottom_list">List View</string>
+    <string name="bottom_workmates">Workmates</string>
 </resources>
