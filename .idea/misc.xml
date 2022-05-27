@@ -21,10 +21,11 @@
         <entry key="..\:/Android/Android Studio Project/Go4Lunch/app/src/main/res/layout/nav_header_main.xml" value="0.1802536231884058" />
         <entry key="..\:/Android/Android Studio Project/Go4Lunch/app/src/main/res/menu/activity_main_drawer.xml" value="0.23229166666666667" />
         <entry key="..\:/Android/Android Studio Project/Go4Lunch/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.17604166666666668" />
+        <entry key="..\:/Android/AndroidStudioProjects/Go4Lunch/app/src/main/res/layout/activity_main.xml" value="0.1" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
