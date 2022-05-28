@@ -1,4 +1,4 @@
-package com.ocproject7.go4lunch.repositories;
+package com.ocproject7.go4lunch.data.repositories;
 
 import android.content.Context;
 

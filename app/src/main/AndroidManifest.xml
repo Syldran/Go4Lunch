@@ -27,7 +27,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDh9-vXD67X64ASMqxSS-JQUy06g2mF2OE" />
+            android:value="${GOOGLE_API_KEY}" />
 
         <activity
             android:name=".ui.NavigationActivity"

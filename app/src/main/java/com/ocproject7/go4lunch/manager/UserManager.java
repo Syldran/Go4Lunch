@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
-import com.ocproject7.go4lunch.repositories.UserRepository;
+import com.ocproject7.go4lunch.data.repositories.UserRepository;
 
 public class UserManager extends AppCompatActivity {
     private static volatile UserManager instance;
