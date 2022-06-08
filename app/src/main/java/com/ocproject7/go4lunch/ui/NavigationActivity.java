@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -136,13 +137,13 @@ public class NavigationActivity extends AppCompatActivity {
 
     private void initViewModel() {
         mRestaurantViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
-//        mRestaurantViewModel.fetchRestaurants("Paris", location, 1500);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.option_menu, menu);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -150,12 +151,20 @@ public class NavigationActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // Set the fields to specify which types of place data to
         // return after the user has made a selection.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+        int menuId = item.getItemId();
+        switch (menuId){
+            case R.id.action_search:
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-        // Start the autocomplete intent.
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                .build( this);
-        autocompleteLaunch.launch(intent);
+                // Start the autocomplete intent.
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                        .build( this);
+                autocompleteLaunch.launch(intent);
+                break;
+
+            default:break;
+
+        }
         return super.onOptionsItemSelected(item);
     }
 

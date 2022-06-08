@@ -1,23 +1,55 @@
 package com.ocproject7.go4lunch.ui.map;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.ocproject7.go4lunch.R;
+import com.ocproject7.go4lunch.models.Restaurant;
+import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
+import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
+
+import java.util.List;
 
 public class MapFragment extends Fragment {
+
+    private static String TAG = "TAG_MapFragment";
+    private static final float DEFAULT_ZOOM = 15f;
+
+    private SupportMapFragment mapFragment;
+    private GoogleMap map;
+    private FusedLocationProviderClient client;
+    private RestaurantViewModel mViewModel;
+    BitmapDescriptor bitmapMarker;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -32,9 +64,24 @@ public class MapFragment extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+            map = googleMap;
+            map.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
+                @Override
+                public void onMyLocationClick(@NonNull Location location) {
+                    Log.d(TAG, "onMyLocationClick: current location clicked and toast location informations");
+                    Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
+                }
+            });
+
+            getCurrentLocation();
+            enableMyLocation();
+            bitmapMarker = vectorToBitmap(R.drawable.ic_restaurant_marker);
+            mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
+                if (restaurants != null){
+                    addMarkers(restaurants);
+                }
+            });
         }
     };
 
@@ -48,11 +95,84 @@ public class MapFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated: ");
         super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
+
+        initMap();
+    }
+
+    public void initMap(){
+        Log.d(TAG, "initMap: ");
+        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
+    }
+
+    private void enableMyLocation() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        map.setMyLocationEnabled(true);
+    }
+
+    private void moveCamera(LatLng latLng, float zoom) {
+        Log.d(TAG, "moveCamera: to lat : " + latLng.latitude + " & lng " + latLng.longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+    }
+
+    private void getCurrentLocation() {
+        Log.d(TAG, "getCurrentLocation: ");
+        client = LocationServices.getFusedLocationProviderClient(getActivity());
+        try {
+
+            Task<Location> location = client.getLastLocation();
+            location.addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    if (task.isSuccessful()) {
+                        Location currentLocation = (Location) task.getResult();
+                        moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+                        if(mViewModel.mRestaurants.getValue() != null){
+                            addMarkers(mViewModel.mRestaurants.getValue());
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Unable to get current location.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+        } catch (SecurityException e) {
+            Log.e(TAG, "getCurrentLocation: Security Exception " + e.getMessage());
+        }
+    }
+
+    private void addMarkers(List<Restaurant> restaurants) {
+        Log.d(TAG, "addMarkers: markers nearby : "+mViewModel.mLocation);
+        map.clear();
+        for (Restaurant restaurant : restaurants) {
+            LatLng restoLocation = new LatLng(restaurant.getGeometry().getLocation().getLat(),restaurant.getGeometry().getLocation().getLng());
+            map.addMarker(new MarkerOptions().position(restoLocation).title(restaurant.getName()).icon(bitmapMarker));
+        }
+        map.addMarker(new MarkerOptions().position(mViewModel.mLocation).title(mViewModel.mName));
+        moveCamera(mViewModel.mLocation, DEFAULT_ZOOM);
+    }
+
+    private BitmapDescriptor vectorToBitmap(@DrawableRes int id) {
+        Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), id, null);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 }
