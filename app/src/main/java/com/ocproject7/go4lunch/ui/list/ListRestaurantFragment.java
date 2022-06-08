@@ -1,5 +1,6 @@
 package com.ocproject7.go4lunch.ui.list;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,10 +20,11 @@ import java.util.List;
 
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.models.Restaurant;
+import com.ocproject7.go4lunch.ui.DetailsRestaurantActivity;
 import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 
-public class ListRestaurantFragment extends Fragment {
+public class ListRestaurantFragment extends Fragment implements RecyclerViewAdapter.OnRestaurantListener {
 
     RestaurantViewModel mViewModel;
     private final List<Restaurant> mRestaurants = new ArrayList<>();
@@ -54,7 +56,7 @@ public class ListRestaurantFragment extends Fragment {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(mRestaurants);
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(mRestaurants, this);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
                 layoutManager.getOrientation());
@@ -73,5 +75,12 @@ public class ListRestaurantFragment extends Fragment {
         configRecyclerView(view);
         initData();
         return view;
+    }
+
+    @Override
+    public void onRestaurantClick(Restaurant restaurant) {
+        Intent intent = new Intent(getActivity(), DetailsRestaurantActivity.class);
+        intent.putExtra("ID", restaurant.getPlaceId());
+        startActivity(intent);
     }
 }

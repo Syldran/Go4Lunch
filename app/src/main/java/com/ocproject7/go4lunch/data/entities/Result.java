@@ -1,5 +1,6 @@
 package com.ocproject7.go4lunch.data.entities;
 
+import com.google.android.libraries.places.api.model.AddressComponent;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -58,6 +59,34 @@ public class Result {
     @SerializedName("price_level")
     @Expose
     private Integer priceLevel;
+
+
+
+    @SerializedName("address_components")
+    @Expose
+    private List<com.google.android.libraries.places.api.model.AddressComponent> addressComponents = null;
+    @SerializedName("adr_address")
+    @Expose
+    private String adrAddress;
+    @SerializedName("formatted_address")
+    @Expose
+    private String formattedAddress;
+    @SerializedName("formatted_phone_number")
+    @Expose
+    private String formattedPhoneNumber;
+    @SerializedName("international_phone_number")
+    @Expose
+    private String internationalPhoneNumber;
+    @SerializedName("reviews")
+    @Expose
+    private List<Review> reviews = null;
+    @SerializedName("url")
+    @Expose
+    private String url;
+    @SerializedName("utc_offset")
+    @Expose
+    private Integer utcOffset;
+
 
     public Geometry getGeometry() {
         return geometry;
@@ -193,6 +222,70 @@ public class Result {
 
     public void setPriceLevel(Integer priceLevel) {
         this.priceLevel = priceLevel;
+    }
+
+    public List<com.google.android.libraries.places.api.model.AddressComponent> getAddressComponents() {
+        return addressComponents;
+    }
+
+    public void setAddressComponents(List<AddressComponent> addressComponents) {
+        this.addressComponents = addressComponents;
+    }
+
+    public String getAdrAddress() {
+        return adrAddress;
+    }
+
+    public void setAdrAddress(String adrAddress) {
+        this.adrAddress = adrAddress;
+    }
+
+    public String getFormattedAddress() {
+        return formattedAddress;
+    }
+
+    public void setFormattedAddress(String formattedAddress) {
+        this.formattedAddress = formattedAddress;
+    }
+
+    public String getFormattedPhoneNumber() {
+        return formattedPhoneNumber;
+    }
+
+    public void setFormattedPhoneNumber(String formattedPhoneNumber) {
+        this.formattedPhoneNumber = formattedPhoneNumber;
+    }
+
+    public String getInternationalPhoneNumber() {
+        return internationalPhoneNumber;
+    }
+
+    public void setInternationalPhoneNumber(String internationalPhoneNumber) {
+        this.internationalPhoneNumber = internationalPhoneNumber;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Integer getUtcOffset() {
+        return utcOffset;
+    }
+
+    public void setUtcOffset(Integer utcOffset) {
+        this.utcOffset = utcOffset;
     }
 
 }

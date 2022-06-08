@@ -1,5 +1,6 @@
 package com.ocproject7.go4lunch.data;
 
+import com.ocproject7.go4lunch.data.responses.DetailsResponse;
 import com.ocproject7.go4lunch.data.responses.NearbyResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -11,6 +12,12 @@ public interface PlacesApi {
             @Query("location") String location,
             @Query("radius") int radius,
             @Query("type") String type,
+            @Query("key") String key
+    );
+
+    @GET("details/json")
+    Call<DetailsResponse> getDetails(
+            @Query("place_id") String id,
             @Query("key") String key
     );
 }
