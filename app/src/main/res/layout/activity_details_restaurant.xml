@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="80dip"
         android:orientation="vertical"
-        android:background="@color/purple_700"
+        android:background="@color/orange_light"
         app:layout_constraintTop_toBottomOf="@+id/restaurant_photo"
         >
         <LinearLayout
@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:padding="8dp"
                 android:layout_gravity="center"
-                app:tint="@color/purple_700"
+                app:tint="@color/orange_dark"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_gravity="center"
                 android:padding="8dp"
-                app:tint="@color/purple_700" />
+                app:tint="@color/orange_dark" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
                 android:layout_width="wrap_content"
                 android:padding="8dp"
                 android:layout_gravity="center"
-                app:tint="@color/purple_700"
+                app:tint="@color/orange_dark"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -128,7 +128,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
-        app:tint="@color/purple_700"
+        app:tint="@color/orange_dark"
         app:backgroundTint="@color/white"
         android:src="@drawable/ic_star"
         android:padding="16dp"

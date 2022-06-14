@@ -6,14 +6,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import com.google.android.gms.common.util.Strings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
 import com.ocproject7.go4lunch.R;
+import com.ocproject7.go4lunch.data.entities.OpeningHours;
+import com.ocproject7.go4lunch.data.entities.Period;
 import com.ocproject7.go4lunch.databinding.ListItemBinding;
 import com.ocproject7.go4lunch.models.Restaurant;
 import com.ocproject7.go4lunch.ui.DetailsRestaurantActivity;
@@ -23,6 +31,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private List<Restaurant> mRestaurants = new ArrayList<>();
     private final OnRestaurantListener mOnRestaurantListener;
+    private LatLng mLocation;
 
 
     public RecyclerViewAdapter(List<Restaurant> restaurants, OnRestaurantListener onRestaurantListener) {
@@ -43,11 +52,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         final Restaurant restaurant = mRestaurants.get(position);
         holder.mBinding.textRecyclerViewTitle.setText(restaurant.getName());
         holder.mBinding.textRecyclerViewAddress.setText(restaurant.getVicinity());
-        if (restaurant.getOpeningHours() == null) {
-            holder.mBinding.textRecyclerViewOpening.setText("Undefined");
-        } else {
-            holder.mBinding.textRecyclerViewOpening.setText(mRestaurants.get(position).getOpeningHours().getOpenNow() ? "Open" : "Closed");
-        }
+
+        holder.mBinding.textRecyclerViewOpening.setText(displayOpeningHours(mRestaurants.get(position).getOpeningHours()));
+
 
         if (mRestaurants.get(position).getRating() != null) {
             float rating = mRestaurants.get(position).getRating().floatValue() / 5f * 3f;
@@ -58,7 +65,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         LatLng start = new LatLng(restaurant.getGeometry().getLocation().getLat(), restaurant.getGeometry().getLocation().getLng());
-        double distance = SphericalUtil.computeDistanceBetween( start, RestaurantViewModel.mLocation);
+        double distance = SphericalUtil.computeDistanceBetween( start, mLocation);
         holder.mBinding.textRecyclerViewDistance.setText((int) distance +"m");
 
         holder.itemView.setOnClickListener(view -> {
@@ -66,13 +73,47 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         });
     }
 
+    public String displayOpeningHours(OpeningHours openingHours){
+        if(openingHours == null || openingHours.getPeriods() == null) return "No Time available";
+        if(openingHours.getOpenNow() != null && !openingHours.getOpenNow()){
+            return "closed";
+        }
+
+        int dayOfTheWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) -1;
+        if(openingHours.getPeriods().size() >= dayOfTheWeek+1){
+            Period periodOfTheDay = openingHours.getPeriods().get(dayOfTheWeek);
+
+
+            if(periodOfTheDay.getClose() == null) return "open 27/7";
+
+            String closureString = periodOfTheDay.getClose().getTime();
+            int closure = Integer.parseInt(closureString);
+
+            Date todayDate = Calendar.getInstance().getTime();
+            DateFormat dateFormat = new SimpleDateFormat("HHmm");
+            String todayDateString = dateFormat.format(todayDate);
+            int timeNow = Integer.parseInt(todayDateString);
+            int timeBeforeClosure = closure - timeNow;
+            if(timeBeforeClosure <= 100){
+                return "closing soon";
+            } else {
+                return "open until "+closureString;
+            }
+
+
+        }
+        return "no time";
+
+    }
+
     @Override
     public int getItemCount() {
         return mRestaurants.size();
     }
 
-    public void updateResults(@NonNull final List<Restaurant> restaurants) {
+    public void updateResults(@NonNull final List<Restaurant> restaurants, LatLng userLocation) {
         mRestaurants = restaurants;
+        mLocation = userLocation;
         notifyDataSetChanged();
     }
 

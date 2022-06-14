@@ -27,7 +27,7 @@ import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 public class ListRestaurantFragment extends Fragment implements RecyclerViewAdapter.OnRestaurantListener {
 
     RestaurantViewModel mViewModel;
-    private final List<Restaurant> mRestaurants = new ArrayList<>();
+    private RecyclerViewAdapter adapter;
 
     private static String TAG = "TAG_ListRestaurantFragment";
 
@@ -35,17 +35,26 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
 
     private void initData() {
         mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
-        mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
-            if (restaurants != null){
+//        mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
+//            if (restaurants != null){
 //                for (Restaurant restaurant : restaurants){
 //                    Log.d(TAG, "onChanged: "+restaurant.getName());
 //                }
-                mRestaurants.clear();
-                mRestaurants.addAll(restaurants);
-                mRecyclerView.getAdapter().notifyDataSetChanged();
-            }
-            else{
-                Log.d(TAG, "onChanged: is null");
+//                mRestaurants.clear();
+//                mRestaurants.addAll(restaurants);
+//                mRecyclerView.getAdapter().notifyDataSetChanged();
+//            }
+//            else{
+//                Log.d(TAG, "onChanged: is null");
+//            }
+//        });
+        mViewModel.mDetails.observe(requireActivity(), restaurants -> {
+            if (restaurants != null) {
+                for (Restaurant restaurant : restaurants) {
+                    Log.d(TAG, "initData OnChangedDetails : " + restaurant.getName());
+                }
+
+                adapter.updateResults(restaurants, mViewModel.mLocation);
             }
         });
     }
@@ -56,7 +65,7 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(mRestaurants, this);
+        adapter = new RecyclerViewAdapter(new ArrayList<>(), this);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
                 layoutManager.getOrientation());
@@ -80,7 +89,7 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
     @Override
     public void onRestaurantClick(Restaurant restaurant) {
         Intent intent = new Intent(getActivity(), DetailsRestaurantActivity.class);
-        intent.putExtra("ID", restaurant.getPlaceId());
+        intent.putExtra("DETAILS", restaurant);
         startActivity(intent);
     }
 }

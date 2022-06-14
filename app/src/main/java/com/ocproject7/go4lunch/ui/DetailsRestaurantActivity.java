@@ -28,9 +28,8 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
     RestaurantViewModel mRestaurantViewModel;
     TextView mTextView;
     private static String TAG = "TAG_DetailsRestaurantActivity";
-    MutableLiveData<Restaurant> mRestaurant;
     ImageView mRestaurantPhoto;
-    LinearLayout mLinearLayout;
+    Restaurant mRestaurant;
 
     ActivityDetailsRestaurantBinding binding;
 
@@ -39,13 +38,8 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityDetailsRestaurantBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        mRestaurantViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
-        mRestaurantViewModel.mRestaurant.observe(this, this::configureUi);
-        mRestaurantViewModel.fetchDetailsRestaurant(getIntent().getStringExtra("ID"));
-
-
-//        mRestaurant = getIntent().getParcelableExtra("RESTAURANT");
-
+        mRestaurant = getIntent().getParcelableExtra("DETAILS");
+        configureUi(mRestaurant);
 
     }
 
@@ -74,10 +68,10 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
 
         mTextView = findViewById(R.id.name_restaurant);
         mRestaurantPhoto = findViewById(R.id.restaurant_photo);
-//        Log.d(TAG, "onCreate: "+mRestaurantViewModel.mRestaurants.getValue());
 
         mTextView.setText(restaurant.getName());
 
+        Log.d(TAG, "configureUi: photo ref "+restaurant.getPhotos().get(0).getPhotoReference());
         String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference="+restaurant.getPhotos().get(0).getPhotoReference() + "&key=" + BuildConfig.GOOGLE_API_KEY;
 
         Log.d(TAG, "onCreate: "+url);

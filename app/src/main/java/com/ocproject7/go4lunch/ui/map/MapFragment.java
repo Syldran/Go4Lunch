@@ -39,6 +39,7 @@ import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MapFragment extends Fragment {
 
@@ -49,6 +50,7 @@ public class MapFragment extends Fragment {
     private GoogleMap map;
     private FusedLocationProviderClient client;
     private RestaurantViewModel mViewModel;
+    private LatLng myLocation=null;
     BitmapDescriptor bitmapMarker;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -73,15 +75,26 @@ public class MapFragment extends Fragment {
                     Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
                 }
             });
+            map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                @Override
+                public boolean onMyLocationButtonClick() {
+                    if (myLocation != null){
+                        mViewModel.fetchRestaurants("My Location", myLocation, 1500);
+                    }
+                    return false;
+                }
+            });
 
-            getCurrentLocation();
-            enableMyLocation();
             bitmapMarker = vectorToBitmap(R.drawable.ic_restaurant_marker);
             mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
                 if (restaurants != null){
+                    Log.d(TAG, "onMapReady: HERRREEEE");
                     addMarkers(restaurants);
                 }
             });
+            getCurrentLocation();
+            enableMyLocation();
+
         }
     };
 
@@ -140,10 +153,14 @@ public class MapFragment extends Fragment {
                 public void onComplete(@NonNull Task<Location> task) {
                     if (task.isSuccessful()) {
                         Location currentLocation = (Location) task.getResult();
-                        moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
-                        if(mViewModel.mRestaurants.getValue() != null){
+                        myLocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                        moveCamera(myLocation, DEFAULT_ZOOM);
+                        if (mViewModel.mRestaurants.getValue() != null) {
                             addMarkers(mViewModel.mRestaurants.getValue());
+                        } else {
+                            mViewModel.fetchRestaurants("My Location", myLocation, 1500);
                         }
+
                     } else {
                         Toast.makeText(getContext(), "Unable to get current location.", Toast.LENGTH_SHORT).show();
                     }

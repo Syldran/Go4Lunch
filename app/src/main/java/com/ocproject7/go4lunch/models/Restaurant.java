@@ -67,7 +67,6 @@ public class Restaurant implements Parcelable {
     @SerializedName("price_level")
     @Expose
     private Integer priceLevel;
-
     @SerializedName("address_components")
     @Expose
     private List<AddressComponent> addressComponents = null;
@@ -93,14 +92,20 @@ public class Restaurant implements Parcelable {
     @Expose
     private Integer utcOffset;
 
+    @SerializedName("website")
+    @Expose
+    private String website;
+
 
     public Restaurant() {
     }
 
-    public Restaurant(String name, String vicinity, String formattedPhoneNumber) {
+    public Restaurant( String id, String name, String vicinity, String formattedPhoneNumber, double rating) {
+        placeId = id;
         this.name = name;
         this.vicinity = vicinity;
         this.formattedPhoneNumber = formattedPhoneNumber;
+        this.rating=rating;
     }
 
     protected Restaurant(Parcel in) {
@@ -109,6 +114,7 @@ public class Restaurant implements Parcelable {
         iconBackgroundColor = in.readString();
         iconMaskBaseUri = in.readString();
         name = in.readString();
+        photos = in.createTypedArrayList(Photo.CREATOR);
         placeId = in.readString();
         if (in.readByte() == 0) {
             rating = null;
@@ -139,6 +145,7 @@ public class Restaurant implements Parcelable {
         } else {
             utcOffset = in.readInt();
         }
+        website = in.readString();
     }
 
     public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
@@ -353,6 +360,14 @@ public class Restaurant implements Parcelable {
         this.utcOffset = utcOffset;
     }
 
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
     @Override
     public String toString() {
         return "Restaurant{" +
@@ -376,52 +391,54 @@ public class Restaurant implements Parcelable {
                 '}';
     }
 
+
     @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
-
-        parcel.writeString(businessStatus);
-        parcel.writeString(icon);
-        parcel.writeString(iconBackgroundColor);
-        parcel.writeString(iconMaskBaseUri);
-        parcel.writeString(name);
-        parcel.writeString(placeId);
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(businessStatus);
+        dest.writeString(icon);
+        dest.writeString(iconBackgroundColor);
+        dest.writeString(iconMaskBaseUri);
+        dest.writeString(name);
+        dest.writeTypedList(photos);
+        dest.writeString(placeId);
         if (rating == null) {
-            parcel.writeByte((byte) 0);
+            dest.writeByte((byte) 0);
         } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeDouble(rating);
+            dest.writeByte((byte) 1);
+            dest.writeDouble(rating);
         }
-        parcel.writeString(reference);
-        parcel.writeString(scope);
-        parcel.writeStringList(types);
+        dest.writeString(reference);
+        dest.writeString(scope);
+        dest.writeStringList(types);
         if (userRatingsTotal == null) {
-            parcel.writeByte((byte) 0);
+            dest.writeByte((byte) 0);
         } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeInt(userRatingsTotal);
+            dest.writeByte((byte) 1);
+            dest.writeInt(userRatingsTotal);
         }
-        parcel.writeString(vicinity);
+        dest.writeString(vicinity);
         if (priceLevel == null) {
-            parcel.writeByte((byte) 0);
+            dest.writeByte((byte) 0);
         } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeInt(priceLevel);
+            dest.writeByte((byte) 1);
+            dest.writeInt(priceLevel);
         }
-        parcel.writeString(adrAddress);
-        parcel.writeString(formattedAddress);
-        parcel.writeString(formattedPhoneNumber);
-        parcel.writeString(internationalPhoneNumber);
-        parcel.writeString(url);
+        dest.writeString(adrAddress);
+        dest.writeString(formattedAddress);
+        dest.writeString(formattedPhoneNumber);
+        dest.writeString(internationalPhoneNumber);
+        dest.writeString(url);
         if (utcOffset == null) {
-            parcel.writeByte((byte) 0);
+            dest.writeByte((byte) 0);
         } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeInt(utcOffset);
+            dest.writeByte((byte) 1);
+            dest.writeInt(utcOffset);
         }
+        dest.writeString(website);
     }
 }
