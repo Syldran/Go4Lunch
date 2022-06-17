@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
@@ -60,6 +61,15 @@ public class RestaurantViewModel extends ViewModel {
     public Task<User> getUser(String id){
         // Get the user from Firestore and cast it to a User model Object
         return mUserRepository.getUserData(id).continueWith(task -> task.getResult().toObject(User.class)) ;
+    }
+
+    // Update Chosen Restaurant
+    public void updateRestaurant(String id, String name){
+        String uid = getCurrentUser().getUid();
+        if (uid != null) {
+            mUserRepository.getUsersCollection().document(uid).update("restaurantId", id);
+            mUserRepository.getUsersCollection().document(uid).update("restaurantName", name);
+        }
     }
 
     public void getUsers(){

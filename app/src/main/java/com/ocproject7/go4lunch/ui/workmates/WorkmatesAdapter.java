@@ -34,9 +34,9 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         final User user = mUsers.get(position);
 
         if(user.getRestaurantId() != null){
-            holder.mBinding.tv1.setText(user.getUsername()+ " is subscribed ");
+            holder.mBinding.tvLunchAt.setText(user.getUsername()+ " is eating at "+user.getRestaurantName());
         } else {
-            holder.mBinding.tv1.setText(user.getUsername()+ " hasn't decided yet");
+            holder.mBinding.tvLunchAt.setText(user.getUsername()+ " hasn't decided yet");
         }
     }
 

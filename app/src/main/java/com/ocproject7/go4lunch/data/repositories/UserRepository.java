@@ -65,7 +65,7 @@ public class UserRepository extends AppCompatActivity {
             String uid = user.getUid();
             String mail = user.getEmail();
 
-            User userToCreate = new User(uid, mail, username, urlPicture);
+            User userToCreate = new User(uid, username, mail, urlPicture);
 
             getUsersCollection().document(uid).set(userToCreate);
         }
@@ -81,6 +81,8 @@ public class UserRepository extends AppCompatActivity {
             return null;
         }
     }
+
+
 
     // Update User Username
     public Task<Void> updateUsername(String username) {

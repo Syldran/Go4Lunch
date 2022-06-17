@@ -52,8 +52,8 @@ public class NavigationActivity extends AppCompatActivity {
     ActivityNavigationBinding binding;
     private AppBarConfiguration mAppBarConfiguration;
     private BottomNavigationView bottomNavigationView;
-
-    RestaurantViewModel mRestaurantViewModel;
+    private RestaurantViewModel mRestaurantViewModel;
+    private boolean isInFirestore;
 
     private static String TAG = "TAG_NavigationActivity";
 
@@ -167,8 +167,12 @@ public class NavigationActivity extends AppCompatActivity {
         // SUCCESS
         if (resultCode == RESULT_OK) {
             //check if present in firestore
-            if ( mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()) == null) {
+            checkFirestoreData(mRestaurantViewModel.getCurrentUser().getUid());
+            if ( !isInFirestore ) {
+                Log.d(TAG, "handleResponseAfterSignIn:  current user not in firestore ");
                 mRestaurantViewModel.createUser();
+            } else {
+                Log.d(TAG, "handleResponseAfterSignIn: user is in firestore : "+mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()));
             }
             initDrawerUi();
             Toast.makeText(this, "Connection Succeeded", Toast.LENGTH_SHORT).show();
@@ -186,6 +190,13 @@ public class NavigationActivity extends AppCompatActivity {
         }
     }
 
+    private void checkFirestoreData(String id) {
+        mRestaurantViewModel.getUser(id).addOnSuccessListener(user -> {
+            if (user != null){
+                isInFirestore = true;
+            } else {isInFirestore = false;}
+        });
+    }
     private void initDrawerUi(){
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View header = navigationView.getHeaderView(0);

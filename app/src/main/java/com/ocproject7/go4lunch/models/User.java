@@ -11,8 +11,7 @@ public class User {
     @Nullable private String urlPicture;
     @Nullable private String restaurantId;
     @Nullable private String restaurantName;
-    @Nullable private String restaurantAddress;
-    private List<String> likedRestaurants;
+
 
     public User(){}
 
@@ -74,22 +73,6 @@ public class User {
         this.restaurantName = restaurantName;
     }
 
-    @Nullable
-    public String getRestaurantAddress() {
-        return restaurantAddress;
-    }
-
-    public void setRestaurantAddress(@Nullable String restaurantAddress) {
-        this.restaurantAddress = restaurantAddress;
-    }
-
-    public List<String> getLikedRestaurants() {
-        return likedRestaurants;
-    }
-
-    public void setLikedRestaurants(List<String> likedRestaurants) {
-        this.likedRestaurants = likedRestaurants;
-    }
 
     @Override
     public String toString() {
@@ -99,9 +82,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", urlPicture='" + urlPicture + '\'' +
                 ", restaurantUid='" + restaurantId + '\'' +
-                ", restaurantName='" + restaurantName + '\'' +
-                ", restaurantAddress='" + restaurantAddress + '\'' +
-                ", likedRestaurants=" + likedRestaurants +
+                ", restaurantName='" + restaurantName +
                 '}';
     }
 }
