@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
+import com.ocproject7.go4lunch.data.repositories.UserRepository;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
@@ -22,12 +23,13 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     }
 
     private final RestaurantRepository mRestaurantRepository = new RestaurantRepository();
+    private final UserRepository mUserRepository = UserRepository.getInstance();
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if(modelClass.isAssignableFrom(RestaurantViewModel.class)){
-            return (T) new RestaurantViewModel(mRestaurantRepository);
+            return (T) new RestaurantViewModel(mRestaurantRepository, mUserRepository);
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }

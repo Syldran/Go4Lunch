@@ -71,7 +71,7 @@ public class MapFragment extends Fragment {
             map.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
                 @Override
                 public void onMyLocationClick(@NonNull Location location) {
-                    Log.d(TAG, "onMyLocationClick: current location clicked and toast location informations");
+//                    Log.d(TAG, "onMyLocationClick: current location clicked and toast location informations");
                     Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
                 }
             });
@@ -88,7 +88,7 @@ public class MapFragment extends Fragment {
             bitmapMarker = vectorToBitmap(R.drawable.ic_restaurant_marker);
             mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
                 if (restaurants != null){
-                    Log.d(TAG, "onMapReady: HERRREEEE");
+//                    Log.d(TAG, "onMapReady: HERRREEEE");
                     addMarkers(restaurants);
                 }
             });
@@ -108,7 +108,7 @@ public class MapFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onViewCreated: ");
+//        Log.d(TAG, "onViewCreated: ");
         super.onViewCreated(view, savedInstanceState);
         mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
 
@@ -116,7 +116,7 @@ public class MapFragment extends Fragment {
     }
 
     public void initMap(){
-        Log.d(TAG, "initMap: ");
+//        Log.d(TAG, "initMap: ");
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
@@ -138,12 +138,12 @@ public class MapFragment extends Fragment {
     }
 
     private void moveCamera(LatLng latLng, float zoom) {
-        Log.d(TAG, "moveCamera: to lat : " + latLng.latitude + " & lng " + latLng.longitude);
+//        Log.d(TAG, "moveCamera: to lat : " + latLng.latitude + " & lng " + latLng.longitude);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
     private void getCurrentLocation() {
-        Log.d(TAG, "getCurrentLocation: ");
+//        Log.d(TAG, "getCurrentLocation: ");
         client = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
 
@@ -168,12 +168,12 @@ public class MapFragment extends Fragment {
             });
 
         } catch (SecurityException e) {
-            Log.e(TAG, "getCurrentLocation: Security Exception " + e.getMessage());
+//            Log.e(TAG, "getCurrentLocation: Security Exception " + e.getMessage());
         }
     }
 
     private void addMarkers(List<Restaurant> restaurants) {
-        Log.d(TAG, "addMarkers: markers nearby : "+mViewModel.mLocation);
+//        Log.d(TAG, "addMarkers: markers nearby : "+mViewModel.mLocation);
         map.clear();
         for (Restaurant restaurant : restaurants) {
             LatLng restoLocation = new LatLng(restaurant.getGeometry().getLocation().getLat(),restaurant.getGeometry().getLocation().getLng());

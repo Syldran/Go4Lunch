@@ -91,21 +91,12 @@ public class Restaurant implements Parcelable {
     @SerializedName("utc_offset")
     @Expose
     private Integer utcOffset;
-
     @SerializedName("website")
     @Expose
     private String website;
-
+    private List<User> subscribedUsers;
 
     public Restaurant() {
-    }
-
-    public Restaurant( String id, String name, String vicinity, String formattedPhoneNumber, double rating) {
-        placeId = id;
-        this.name = name;
-        this.vicinity = vicinity;
-        this.formattedPhoneNumber = formattedPhoneNumber;
-        this.rating=rating;
     }
 
     protected Restaurant(Parcel in) {

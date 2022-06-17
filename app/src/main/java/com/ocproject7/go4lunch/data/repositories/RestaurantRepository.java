@@ -55,7 +55,6 @@ public class RestaurantRepository {
             @Override
             public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {
                 if (response.code() == 200 && response.body() != null) {
-                    Log.d(TAG, "onResponse: ok");
                     onDetailsRestaurantCallBack.onGetDetailsRestaurantData(response.body().getResult());
                 }
             }

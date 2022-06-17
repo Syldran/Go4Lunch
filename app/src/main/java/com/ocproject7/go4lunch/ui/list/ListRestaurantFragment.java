@@ -28,26 +28,13 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
 
     RestaurantViewModel mViewModel;
     private RecyclerViewAdapter adapter;
+    private RecyclerView mRecyclerView;
 
     private static String TAG = "TAG_ListRestaurantFragment";
 
-    private RecyclerView mRecyclerView;
 
     private void initData() {
         mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
-//        mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
-//            if (restaurants != null){
-//                for (Restaurant restaurant : restaurants){
-//                    Log.d(TAG, "onChanged: "+restaurant.getName());
-//                }
-//                mRestaurants.clear();
-//                mRestaurants.addAll(restaurants);
-//                mRecyclerView.getAdapter().notifyDataSetChanged();
-//            }
-//            else{
-//                Log.d(TAG, "onChanged: is null");
-//            }
-//        });
         mViewModel.mDetails.observe(requireActivity(), restaurants -> {
             if (restaurants != null) {
                 for (Restaurant restaurant : restaurants) {

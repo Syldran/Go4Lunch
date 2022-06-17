@@ -2,13 +2,14 @@ package com.ocproject7.go4lunch.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -20,15 +21,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
+import com.ocproject7.go4lunch.BuildConfig;
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.databinding.ActivityNavigationBinding;
-import com.ocproject7.go4lunch.manager.UserManager;
 import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 
@@ -46,10 +50,9 @@ import java.util.List;
 public class NavigationActivity extends AppCompatActivity {
 
     ActivityNavigationBinding binding;
-    private static final int RC_SIGN_IN = 123;
     private AppBarConfiguration mAppBarConfiguration;
     private BottomNavigationView bottomNavigationView;
-    private UserManager userManager = UserManager.getInstance();
+
     RestaurantViewModel mRestaurantViewModel;
 
     private static String TAG = "TAG_NavigationActivity";
@@ -59,16 +62,26 @@ public class NavigationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityNavigationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+
+
         if (!Places.isInitialized()){
-            Places.initialize(getApplicationContext(), "AIzaSyDh9-vXD67X64ASMqxSS-JQUy06g2mF2OE");
+            Places.initialize(getApplicationContext(), BuildConfig.GOOGLE_API_KEY);
         }
         initToolbar();
         initNavigation();
         initViewModel();
-        if (!userManager.isCurrentUserLogged()){
+
+        if (mRestaurantViewModel.isCurrentUserLogged()) {
+            initDrawerUi();
+        } else {
+            Log.d(TAG, "onCreate: is not logged");
             startSignInActivity();
         }
+
     }
+
+
 
     private void initToolbar(){
         setSupportActionBar(binding.appBarMain.toolbar);
@@ -86,8 +99,14 @@ public class NavigationActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
         binding.navView.setNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
+                case R.id.nav_lunch:{
+                    //boite dialog avec restau inscrit
+                } break;
+                case R.id.nav_settings:{
+
+                } break;
                 case R.id.nav_logout: {
-                    userManager.signOut(this).addOnCompleteListener(task -> {
+                    mRestaurantViewModel.signOut(this).addOnCompleteListener(task -> {
                         if (task.isSuccessful()){
                             startSignInActivity();
                             Toast.makeText(getApplicationContext(), "LOGOUT SUCCESSFUL", Toast.LENGTH_SHORT).show();
@@ -95,7 +114,7 @@ public class NavigationActivity extends AppCompatActivity {
                         else Toast.makeText(this, "LOGOUT FAILED", Toast.LENGTH_LONG).show();
                     });
                     binding.drawerLayout.closeDrawer(GravityCompat.START);
-                }
+                } break;
             }
             return true;
         });
@@ -123,7 +142,7 @@ public class NavigationActivity extends AppCompatActivity {
                 .setTwitterButtonId(R.id.login_twitter_btn)
                 .build();
 
-        startActivityForResult(
+        mResultLauncher.launch(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
@@ -131,8 +150,54 @@ public class NavigationActivity extends AppCompatActivity {
                         .setAuthMethodPickerLayout(authMethodPickerLayout)
                         .setIsSmartLockEnabled(false, true)
                         .setTheme(R.style.Theme_Go4Lunch)
-                        .build(),
-                RC_SIGN_IN);
+                        .build());
+    }
+
+    ActivityResultLauncher<Intent> mResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            handleResponseAfterSignIn(result.getResultCode(), result.getData());
+        }
+    });
+
+    // Method that handles response after SignIn Activity close
+    private void handleResponseAfterSignIn(int resultCode, Intent data){
+
+        IdpResponse response = IdpResponse.fromResultIntent(data);
+        // SUCCESS
+        if (resultCode == RESULT_OK) {
+            //check if present in firestore
+            if ( mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()) == null) {
+                mRestaurantViewModel.createUser();
+            }
+            initDrawerUi();
+            Toast.makeText(this, "Connection Succeeded", Toast.LENGTH_SHORT).show();
+        } else {
+            // ERRORS
+            if (response == null) {
+                Toast.makeText(this, "Error authentication canceled", Toast.LENGTH_SHORT).show();
+            } else if (response.getError()!= null) {
+                if(response.getError().getErrorCode() == ErrorCodes.NO_NETWORK){
+                    Toast.makeText(this, "Error no internet", Toast.LENGTH_SHORT).show();
+                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                    Toast.makeText(this, "Unknown error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    private void initDrawerUi(){
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View header = navigationView.getHeaderView(0);
+        ImageView picture = header.findViewById(R.id.iv_header_picture);
+        TextView title = header.findViewById(R.id.tv_header_go4lunch);
+        TextView name = header.findViewById(R.id.tv_header_name);
+        TextView email = header.findViewById(R.id.tv_header_mail);
+        if (mRestaurantViewModel.getCurrentUser().getPhotoUrl() != null){
+            DetailsRestaurantActivity.loadImage(this, mRestaurantViewModel.getCurrentUser().getPhotoUrl().toString(), picture);
+        }
+        name.setText(mRestaurantViewModel.getCurrentUser().getDisplayName());
+        email.setText(mRestaurantViewModel.getCurrentUser().getEmail());
     }
 
     private void initViewModel() {
@@ -153,15 +218,15 @@ public class NavigationActivity extends AppCompatActivity {
         // return after the user has made a selection.
         int menuId = item.getItemId();
         switch (menuId){
-            case R.id.action_search:
+            case R.id.action_search: {
                 List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
                 // Start the autocomplete intent.
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                        .build( this);
+                        .build(this);
                 autocompleteLaunch.launch(intent);
                 break;
-
+            }
             default:break;
 
         }
