@@ -1,7 +1,14 @@
 package com.ocproject7.go4lunch.ui;
 
+import static com.ocproject7.go4lunch.ui.SettingsActivity.MyPREFERENCES;
+import static com.ocproject7.go4lunch.ui.SettingsActivity.RADIUS;
+import static com.ocproject7.go4lunch.ui.SettingsActivity.RANKBY;
+
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,13 +24,23 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -36,26 +53,24 @@ import com.ocproject7.go4lunch.databinding.ActivityNavigationBinding;
 import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 
-import androidx.core.view.GravityCompat;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 
 public class NavigationActivity extends AppCompatActivity {
 
     ActivityNavigationBinding binding;
     private AppBarConfiguration mAppBarConfiguration;
-    private BottomNavigationView bottomNavigationView;
     private RestaurantViewModel mRestaurantViewModel;
-    private boolean isInFirestore;
+    private int radius;
+    private String rankBy;
+    private LatLng mUserPos;
 
     private static String TAG = "TAG_NavigationActivity";
+
+    SharedPreferences sharedpreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,17 +78,25 @@ public class NavigationActivity extends AppCompatActivity {
         binding = ActivityNavigationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        if (sharedpreferences.getString(RANKBY, null) == null) {
+            sharedpreferences.edit().putString(RANKBY, "prominence").apply();
+        }
 
+        rankBy = sharedpreferences.getString(RANKBY, "prominence");
+        Log.d(TAG, "onCreate: rankby " + rankBy);
+        radius = sharedpreferences.getInt(RADIUS, 1500);
+        Log.d(TAG, "onCreate: radius " + radius);
 
-        if (!Places.isInitialized()){
+        if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.GOOGLE_API_KEY);
         }
         initToolbar();
         initNavigation();
         initViewModel();
-
         if (mRestaurantViewModel.isCurrentUserLogged()) {
             initDrawerUi();
+            mRestaurantViewModel.getUsers();
         } else {
             Log.d(TAG, "onCreate: is not logged");
             startSignInActivity();
@@ -82,39 +105,48 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
 
-
-    private void initToolbar(){
+    private void initToolbar() {
         setSupportActionBar(binding.appBarMain.toolbar);
     }
 
     private void initNavigation() {
-        bottomNavigationView = findViewById(R.id.bottom_nav_view);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.bottom_map, R.id.bottom_list, R.id.bottom_workmates)
                 .setOpenableLayout(binding.drawerLayout)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        NavigationUI.setupActionBarWithNavController( this, navController, mAppBarConfiguration);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
         NavigationUI.setupWithNavController(binding.navView, navController);
         binding.navView.setNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
-                case R.id.nav_lunch:{
-                    //boite dialog avec restau inscrit
-                } break;
-                case R.id.nav_settings:{
-
-                } break;
+                case R.id.nav_lunch: {
+                    //dialog with chosen restaurant
+                    String uid = mRestaurantViewModel.getCurrentUser().getUid();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NavigationActivity.this);
+                    NavigationActivity.this.checkFirestoreIsSubscribed(uid, builder);
+                }
+                break;
+                case R.id.nav_settings: {
+                    Intent intent = new Intent(this, SettingsActivity.class);
+                    binding.drawerLayout.closeDrawer(GravityCompat.START);
+                    settingsLauncher.launch(intent);
+                }
+                break;
                 case R.id.nav_logout: {
-                    mRestaurantViewModel.signOut(this).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()){
-                            startSignInActivity();
-                            Toast.makeText(getApplicationContext(), "LOGOUT SUCCESSFUL", Toast.LENGTH_SHORT).show();
-                        }
-                        else Toast.makeText(this, "LOGOUT FAILED", Toast.LENGTH_LONG).show();
+                    mRestaurantViewModel.signOut(NavigationActivity.this).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            NavigationActivity.this.startSignInActivity();
+                            Toast.makeText(NavigationActivity.this.getApplicationContext(), "LOGOUT SUCCESSFUL", Toast.LENGTH_SHORT).show();
+                        } else
+                            Toast.makeText(NavigationActivity.this, "LOGOUT FAILED", Toast.LENGTH_LONG).show();
                     });
                     binding.drawerLayout.closeDrawer(GravityCompat.START);
-                } break;
+                }
+                break;
+                default:
+                    break;
             }
             return true;
         });
@@ -142,7 +174,7 @@ public class NavigationActivity extends AppCompatActivity {
                 .setTwitterButtonId(R.id.login_twitter_btn)
                 .build();
 
-        mResultLauncher.launch(
+        signInLauncher.launch(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
@@ -153,35 +185,41 @@ public class NavigationActivity extends AppCompatActivity {
                         .build());
     }
 
-    ActivityResultLauncher<Intent> mResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+    private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(new FirebaseAuthUIActivityResultContract(),
+            result -> NavigationActivity.this.handleResponseAfterSignIn(result.getResultCode(), result.getIdpResponse())
+    );
+
+    private final ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
-            handleResponseAfterSignIn(result.getResultCode(), result.getData());
+            Log.d(TAG, "onActivityResult: resultCode " + result.getResultCode());
+            rankBy = sharedpreferences.getString(RANKBY, "prominence");
+            Log.d(TAG, "onCreate: rankby " + rankBy);
+            radius = sharedpreferences.getInt(RADIUS, 1500);
+            Log.d(TAG, "onCreate: radius " + radius);
+
+            mRestaurantViewModel.fetchRestaurants(radius, rankBy);
+
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Log.d(TAG, "onActivityResult: HERE");
+            }
         }
     });
 
     // Method that handles response after SignIn Activity close
-    private void handleResponseAfterSignIn(int resultCode, Intent data){
+    private void handleResponseAfterSignIn(int resultCode, IdpResponse response) {
 
-        IdpResponse response = IdpResponse.fromResultIntent(data);
         // SUCCESS
         if (resultCode == RESULT_OK) {
-            //check if present in firestore
             checkFirestoreData(mRestaurantViewModel.getCurrentUser().getUid());
-            if ( !isInFirestore ) {
-                Log.d(TAG, "handleResponseAfterSignIn:  current user not in firestore ");
-                mRestaurantViewModel.createUser();
-            } else {
-                Log.d(TAG, "handleResponseAfterSignIn: user is in firestore : "+mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()));
-            }
             initDrawerUi();
             Toast.makeText(this, "Connection Succeeded", Toast.LENGTH_SHORT).show();
         } else {
             // ERRORS
             if (response == null) {
                 Toast.makeText(this, "Error authentication canceled", Toast.LENGTH_SHORT).show();
-            } else if (response.getError()!= null) {
-                if(response.getError().getErrorCode() == ErrorCodes.NO_NETWORK){
+            } else if (response.getError() != null) {
+                if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
                     Toast.makeText(this, "Error no internet", Toast.LENGTH_SHORT).show();
                 } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
                     Toast.makeText(this, "Unknown error", Toast.LENGTH_SHORT).show();
@@ -192,20 +230,47 @@ public class NavigationActivity extends AppCompatActivity {
 
     private void checkFirestoreData(String id) {
         mRestaurantViewModel.getUser(id).addOnSuccessListener(user -> {
-            if (user != null){
-                isInFirestore = true;
-            } else {isInFirestore = false;}
+            if (user == null) {
+                Log.d(TAG, "handleResponseAfterSignIn:  current user not in firestore ");
+                mRestaurantViewModel.createUser();
+                mRestaurantViewModel.getUsers();
+            } else {
+                Log.d(TAG, "handleResponseAfterSignIn: user is in firestore : " + mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()));
+            }
         });
     }
-    private void initDrawerUi(){
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+    private void checkFirestoreIsSubscribed(String id, AlertDialog.Builder builder) {
+        mRestaurantViewModel.getUser(id).addOnSuccessListener(user -> {
+            if (user != null) {
+                if (user.getRestaurantId() != null) {
+                    builder.setMessage("You'll eat at " + user.getRestaurantName())
+                            .setTitle("Your lunch");
+                } else {
+                    builder.setMessage("You haven't chosen a place to eat yet.").setTitle("Your lunch");
+                }
+                builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+    }
+
+    private void initDrawerUi() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
         View header = navigationView.getHeaderView(0);
         ImageView picture = header.findViewById(R.id.iv_header_picture);
-        TextView title = header.findViewById(R.id.tv_header_go4lunch);
         TextView name = header.findViewById(R.id.tv_header_name);
         TextView email = header.findViewById(R.id.tv_header_mail);
-        if (mRestaurantViewModel.getCurrentUser().getPhotoUrl() != null){
+        if (mRestaurantViewModel.getCurrentUser().getPhotoUrl() != null) {
             DetailsRestaurantActivity.loadImage(this, mRestaurantViewModel.getCurrentUser().getPhotoUrl().toString(), picture);
+        } else {
+            picture.setImageResource(R.drawable.baseline_account_circle_24);
         }
         name.setText(mRestaurantViewModel.getCurrentUser().getDisplayName());
         email.setText(mRestaurantViewModel.getCurrentUser().getEmail());
@@ -228,17 +293,18 @@ public class NavigationActivity extends AppCompatActivity {
         // Set the fields to specify which types of place data to
         // return after the user has made a selection.
         int menuId = item.getItemId();
-        switch (menuId){
+        switch (menuId) {
             case R.id.action_search: {
                 List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-                // Start the autocomplete intent.
+                // Start autocomplete intent.
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
                         .build(this);
                 autocompleteLaunch.launch(intent);
                 break;
             }
-            default:break;
+            default:
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -248,14 +314,16 @@ public class NavigationActivity extends AppCompatActivity {
         @Override
         public void onActivityResult(ActivityResult result) {
             Intent data = result.getData();
-            if (result.getResultCode() == Activity.RESULT_OK){
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
-                mRestaurantViewModel.fetchRestaurants(place.getName(), place.getLatLng(), 1500);
-            }else if (result.getResultCode() == com.google.android.libraries.places.widget.AutocompleteActivity.RESULT_ERROR) {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Place mPlace = Autocomplete.getPlaceFromIntent(data);
+                Log.i(TAG, "Place: " + mPlace.getName() + ", " + mPlace.getId());
+                mRestaurantViewModel.setCurrentPosName(mPlace.getName());
+                mRestaurantViewModel.setLocation(mPlace.getLatLng());
+                mRestaurantViewModel.fetchRestaurants(radius, rankBy);
+            } else if (result.getResultCode() == com.google.android.libraries.places.widget.AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i(TAG, status.getStatusMessage());
-            }else if (result.getResultCode() == RESULT_CANCELED) {
+            } else if (result.getResultCode() == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
         }

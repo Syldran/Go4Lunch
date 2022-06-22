@@ -34,46 +34,47 @@
 
         <TextView
             android:id="@+id/tv_name_restaurant"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
-            android:textColor="@color/white"
-            android:singleLine="true"
-            android:textSize="20sp"
             android:ellipsize="end"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/info_restaurant"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toTopOf="@+id/tv_address_restaurant"
-            app:layout_constraintEnd_toStartOf="@id/rating_bar"
+            app:layout_constraintEnd_toStartOf="@+id/rating_bar"
             app:layout_constraintHorizontal_bias="0"
-            />
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/info_restaurant" />
 
         <RatingBar
             android:id="@+id/rating_bar"
             style="?android:attr/ratingBarStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:isIndicator="true"
             android:numStars="3"
             android:orientation="horizontal"
             android:progressTint="@color/quantum_yellow"
             android:rating="0"
             app:layout_constraintBottom_toBottomOf="@+id/tv_name_restaurant"
-            app:layout_constraintTop_toTopOf="@+id/tv_name_restaurant"
             app:layout_constraintEnd_toStartOf="@id/guideline2"
-
-            />
+            app:layout_constraintStart_toEndOf="@+id/tv_name_restaurant"
+            app:layout_constraintTop_toTopOf="@+id/tv_name_restaurant" />
 
         <TextView
             android:id="@+id/tv_address_restaurant"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
             android:textColor="@color/white"
-            app:layout_constraintTop_toBottomOf="@id/tv_name_restaurant"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/tv_name_restaurant"
-            />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_name_restaurant" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

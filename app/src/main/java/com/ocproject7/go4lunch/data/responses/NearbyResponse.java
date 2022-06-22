@@ -2,10 +2,9 @@ package com.ocproject7.go4lunch.data.responses;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.ocproject7.go4lunch.models.Restaurant;
 
 import java.util.List;
-
-import com.ocproject7.go4lunch.models.Restaurant;
 
 public class NearbyResponse {
 

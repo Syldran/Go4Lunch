@@ -2,18 +2,20 @@ package com.ocproject7.go4lunch.models;
 
 import androidx.annotation.Nullable;
 
-import java.util.List;
-
 public class User {
     private String userId;
     private String username;
     private String email;
-    @Nullable private String urlPicture;
-    @Nullable private String restaurantId;
-    @Nullable private String restaurantName;
+    @Nullable
+    private String urlPicture;
+    @Nullable
+    private String restaurantId;
+    @Nullable
+    private String restaurantName;
 
 
-    public User(){}
+    public User() {
+    }
 
     public User(String userId, String username, String email, @Nullable String urlPicture) {
         this.userId = userId;

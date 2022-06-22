@@ -6,20 +6,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.ocproject7.go4lunch.databinding.WorkmatesItemBinding;
-import com.ocproject7.go4lunch.models.Restaurant;
 import com.ocproject7.go4lunch.models.User;
-import com.ocproject7.go4lunch.ui.list.RecyclerViewAdapter;
+import com.ocproject7.go4lunch.ui.DetailsRestaurantActivity;
 
 import java.util.List;
 
 public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.ViewHolder> {
 
     private List<User> mUsers;
+    private final OnWorkmateListener mOnWorkmateListener;
 
-    public WorkmatesAdapter(List<User> user){
+    public WorkmatesAdapter(List<User> user, OnWorkmateListener onWorkmateListener) {
         mUsers = user;
+        mOnWorkmateListener = onWorkmateListener;
     }
 
     @NonNull
@@ -33,11 +33,19 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     public void onBindViewHolder(@NonNull WorkmatesAdapter.ViewHolder holder, int position) {
         final User user = mUsers.get(position);
 
-        if(user.getRestaurantId() != null){
-            holder.mBinding.tvLunchAt.setText(user.getUsername()+ " is eating at "+user.getRestaurantName());
-        } else {
-            holder.mBinding.tvLunchAt.setText(user.getUsername()+ " hasn't decided yet");
+        if (user.getUrlPicture() != null) {
+            DetailsRestaurantActivity.loadImage(holder.itemView.getContext(), user.getUrlPicture(), holder.mBinding.ivUserPicture);
         }
+
+        if (user.getRestaurantId() != null) {
+            holder.mBinding.tvLunchAt.setText(user.getUsername() + " is eating at " + user.getRestaurantName());
+        } else {
+            holder.mBinding.tvLunchAt.setText(user.getUsername() + " hasn't decided yet");
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            mOnWorkmateListener.onWorkmateClick(user);
+        });
     }
 
     @Override
@@ -52,12 +60,16 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-         WorkmatesItemBinding mBinding;
+        WorkmatesItemBinding mBinding;
 
         public ViewHolder(WorkmatesItemBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
         }
 
+    }
+
+    public interface OnWorkmateListener {
+        void onWorkmateClick(User user);
     }
 }

@@ -8,21 +8,18 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
 import com.ocproject7.go4lunch.data.repositories.UserRepository;
 import com.ocproject7.go4lunch.models.Restaurant;
 import com.ocproject7.go4lunch.models.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RestaurantViewModel extends ViewModel {
 
@@ -34,37 +31,35 @@ public class RestaurantViewModel extends ViewModel {
     public MutableLiveData<Restaurant> mRestaurant;
     private RestaurantRepository mRestaurantRepository;
     private UserRepository mUserRepository;
+    public MutableLiveData<Restaurant> mDetail;
     public LatLng mLocation;
     public String mName;
     public MutableLiveData<List<User>> allUsers;
 
-    public void createUser(){
+
+    public void createUser() {
         mUserRepository.createUser();
     }
 
-//    public boolean isExistingUser(String id){
-//        return mUserRepository.isExistingUser(id);
-//    }
-
-    public FirebaseUser getCurrentUser(){
+    public FirebaseUser getCurrentUser() {
         return mUserRepository.getCurrentUser();
     }
 
-    public boolean isCurrentUserLogged(){
+    public boolean isCurrentUserLogged() {
         return (mUserRepository.getCurrentUser() != null);
     }
 
-    public Task<Void> signOut(Context context){
+    public Task<Void> signOut(Context context) {
         return mUserRepository.signOut(context);
     }
 
-    public Task<User> getUser(String id){
+    public Task<User> getUser(String id) {
         // Get the user from Firestore and cast it to a User model Object
-        return mUserRepository.getUserData(id).continueWith(task -> task.getResult().toObject(User.class)) ;
+        return mUserRepository.getUserData(id).continueWith(task -> task.getResult().toObject(User.class));
     }
 
     // Update Chosen Restaurant
-    public void updateRestaurant(String id, String name){
+    public void updateRestaurant(String id, String name) {
         String uid = getCurrentUser().getUid();
         if (uid != null) {
             mUserRepository.getUsersCollection().document(uid).update("restaurantId", id);
@@ -72,7 +67,7 @@ public class RestaurantViewModel extends ViewModel {
         }
     }
 
-    public void getUsers(){
+    public void getUsers() {
         List<User> users = new ArrayList<>();
         mUserRepository.getUsersCollection()
                 .get()
@@ -81,7 +76,6 @@ public class RestaurantViewModel extends ViewModel {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, "onComplete: document = "+document.getId());
                                 User user = document.toObject(User.class);
                                 users.add(user);
                             }
@@ -94,8 +88,10 @@ public class RestaurantViewModel extends ViewModel {
     }
 
 
-    public void fetchDetailsRestaurants(){
-        if (mDetailsRestaurants!=null){ mDetailsRestaurants.clear();}
+    public void fetchDetailsRestaurants() {
+        if (mDetailsRestaurants != null) {
+            mDetailsRestaurants.clear();
+        }
         for (int i = 0; i < mRestaurants.getValue().size(); i++) {
             mRestaurantRepository.getDetailsRestaurant(mRestaurants.getValue().get(i).getPlaceId(), restaurant -> {
                 mDetailsRestaurants.add(restaurant);
@@ -104,21 +100,32 @@ public class RestaurantViewModel extends ViewModel {
         }
     }
 
-
-
-    public void fetchRestaurants(String name, LatLng location, int radius){
-        Log.d(TAG, "fetchRestaurants: ");
-        String sLocation= location.latitude + "," + location.longitude;
-        mRestaurantRepository.getRestaurants(sLocation, radius, restaurants -> {
-            mRestaurants.setValue(restaurants);
-            fetchDetailsRestaurants();
+    public void fetchDetailRestaurant(String id){
+        mRestaurantRepository.getDetailsRestaurant(id, restaurant -> {
+            mDetail.setValue(restaurant);
         });
-        mLocation = location;
-        mName = name;
-        Log.d(TAG, "fetchRestaurants: mlocation : "+mLocation);
     }
 
-    public RestaurantViewModel(RestaurantRepository restaurantRepository, UserRepository userRepository){
+    public void fetchRestaurants(int radius, String rankBy) {
+        Log.d(TAG, "fetchRestaurants: ");
+        String sLocation = mLocation.latitude + "," + mLocation.longitude;
+        mRestaurantRepository.getRestaurants(sLocation, radius, rankBy, restaurants -> {
+            mRestaurants.setValue(restaurants);
+            fetchDetailsRestaurants();
+            getUsers();
+        });
+        Log.d(TAG, "fetchRestaurants: mlocation : " + mLocation);
+    }
+
+    public void setLocation(LatLng location){
+        mLocation = location;
+    }
+
+    public void setCurrentPosName(String name){
+        mName = name;
+    }
+
+    public RestaurantViewModel(RestaurantRepository restaurantRepository, UserRepository userRepository) {
         mRestaurantRepository = restaurantRepository;
         mUserRepository = userRepository;
         mRestaurants = new MutableLiveData<>();
@@ -126,6 +133,7 @@ public class RestaurantViewModel extends ViewModel {
         mDetails = new MutableLiveData<>();
         mDetailsRestaurants = new ArrayList<>();
         allUsers = new MutableLiveData<>();
-        mName=null;
+        mName = null;
+        mDetail = new MutableLiveData<>();
     }
 }

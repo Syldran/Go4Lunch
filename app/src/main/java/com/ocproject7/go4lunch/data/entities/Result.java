@@ -61,7 +61,6 @@ public class Result {
     private Integer priceLevel;
 
 
-
     @SerializedName("address_components")
     @Expose
     private List<com.google.android.libraries.places.api.model.AddressComponent> addressComponents = null;

@@ -12,7 +12,7 @@ public class RetrofitService {
 
     private static PlacesApi mPlacesApi = retrofit.create(PlacesApi.class);
 
-    public static PlacesApi getPlacesApi(){
+    public static PlacesApi getPlacesApi() {
         return mPlacesApi;
     }
 }

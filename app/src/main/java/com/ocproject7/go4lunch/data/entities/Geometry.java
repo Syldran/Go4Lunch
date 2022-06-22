@@ -1,4 +1,5 @@
 package com.ocproject7.go4lunch.data.entities;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

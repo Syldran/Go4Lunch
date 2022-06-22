@@ -7,22 +7,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.models.Restaurant;
 import com.ocproject7.go4lunch.ui.DetailsRestaurantActivity;
 import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class ListRestaurantFragment extends Fragment implements RecyclerViewAdapter.OnRestaurantListener {
 
@@ -37,27 +40,23 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
         mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
         mViewModel.mDetails.observe(requireActivity(), restaurants -> {
             if (restaurants != null) {
-                for (Restaurant restaurant : restaurants) {
-                    Log.d(TAG, "initData OnChangedDetails : " + restaurant.getName());
-                }
-
-                adapter.updateResults(restaurants, mViewModel.mLocation);
+                adapter.updateResults(restaurants, mViewModel.mLocation, mViewModel.allUsers.getValue());
+            }
+        });
+        mViewModel.allUsers.observe(requireActivity(), users -> {
+            if (users != null && mViewModel.mDetails.getValue() != null) {
+                adapter.updateResults(Objects.requireNonNull(mViewModel.mDetails.getValue()), mViewModel.mLocation, mViewModel.allUsers.getValue());
             }
         });
     }
 
-    public void configRecyclerView(View view){
+    public void configRecyclerView(View view) {
         Log.d(TAG, "configRecyclerView: ");
         // Set the adapter
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         adapter = new RecyclerViewAdapter(new ArrayList<>(), this);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
-                layoutManager.getOrientation());
-        mRecyclerView.addItemDecoration(dividerItemDecoration);
-
         mRecyclerView.setAdapter(adapter);
     }
 
@@ -68,6 +67,7 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
         View view = inflater.inflate(R.layout.fragment_list_restaurant, container, false);
         Log.d(TAG, "onCreateView: ");
 
+
         configRecyclerView(view);
         initData();
         return view;
@@ -77,6 +77,16 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
     public void onRestaurantClick(Restaurant restaurant) {
         Intent intent = new Intent(getActivity(), DetailsRestaurantActivity.class);
         intent.putExtra("DETAILS", restaurant);
-        startActivity(intent);
+        detailsLauncher.launch(intent);
     }
+
+    ActivityResultLauncher<Intent> detailsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            mViewModel.getUsers();
+//            if (result.getResultCode() == Activity.RESULT_OK){
+//                Log.d(TAG, "onActivityResult: HEREEE");
+//            }
+        }
+    });
 }

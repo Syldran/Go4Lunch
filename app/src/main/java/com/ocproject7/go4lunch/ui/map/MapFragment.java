@@ -1,5 +1,23 @@
 package com.ocproject7.go4lunch.ui.map;
 
+import static com.ocproject7.go4lunch.ui.SettingsActivity.MyPREFERENCES;
+import static com.ocproject7.go4lunch.ui.SettingsActivity.RADIUS;
+import static com.ocproject7.go4lunch.ui.SettingsActivity.RANKBY;
+
+import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -7,19 +25,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -35,23 +40,30 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.models.Restaurant;
+import com.ocproject7.go4lunch.models.User;
 import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 
 import java.util.List;
 import java.util.Objects;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment{
 
     private static String TAG = "TAG_MapFragment";
     private static final float DEFAULT_ZOOM = 15f;
 
     private SupportMapFragment mapFragment;
+    private String rankBy;
+    private int radius;
     private GoogleMap map;
     private FusedLocationProviderClient client;
     private RestaurantViewModel mViewModel;
-    private LatLng myLocation=null;
+    private LatLng myLocation = null;
     BitmapDescriptor bitmapMarker;
+    BitmapDescriptor bitmapMarkerSubscribed;
+    List<User> users = null;
+
+    SharedPreferences sharedPreferences;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -68,35 +80,37 @@ public class MapFragment extends Fragment {
         public void onMapReady(GoogleMap googleMap) {
 
             map = googleMap;
-            map.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
-                @Override
-                public void onMyLocationClick(@NonNull Location location) {
-//                    Log.d(TAG, "onMyLocationClick: current location clicked and toast location informations");
-                    Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
+            users = mViewModel.allUsers.getValue();
+
+
+            map.setOnMyLocationClickListener(location -> Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show());
+            map.setOnMyLocationButtonClickListener(() -> {
+                if (myLocation != null) {
+                    mViewModel.setCurrentPosName("My Location");
+                    mViewModel.setLocation(myLocation);
+                    mViewModel.fetchRestaurants(radius, rankBy);
                 }
-            });
-            map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-                @Override
-                public boolean onMyLocationButtonClick() {
-                    if (myLocation != null){
-                        mViewModel.fetchRestaurants("My Location", myLocation, 1500);
-                    }
-                    return false;
-                }
+                return false;
             });
 
             bitmapMarker = vectorToBitmap(R.drawable.ic_restaurant_marker);
-            mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
-                if (restaurants != null){
-//                    Log.d(TAG, "onMapReady: HERRREEEE");
-                    addMarkers(restaurants);
-                }
+            bitmapMarkerSubscribed = vectorToBitmap(R.drawable.ic_restaurant_marker_subscribed);
+            mViewModel.allUsers.observe(requireActivity(), users1 -> {
+                users = users1;
+                addMarkers(mViewModel.mRestaurants.getValue());
             });
+
+            mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
+                addMarkers(restaurants);
+
+            });
+
             getCurrentLocation();
             enableMyLocation();
 
         }
     };
+
 
     @Nullable
     @Override
@@ -111,11 +125,13 @@ public class MapFragment extends Fragment {
 //        Log.d(TAG, "onViewCreated: ");
         super.onViewCreated(view, savedInstanceState);
         mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
-
+        sharedPreferences = getActivity().getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        rankBy = sharedPreferences.getString(RANKBY, "prominence");
+        radius = sharedPreferences.getInt(RADIUS, 1500);
         initMap();
     }
 
-    public void initMap(){
+    public void initMap() {
 //        Log.d(TAG, "initMap: ");
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -158,7 +174,9 @@ public class MapFragment extends Fragment {
                         if (mViewModel.mRestaurants.getValue() != null) {
                             addMarkers(mViewModel.mRestaurants.getValue());
                         } else {
-                            mViewModel.fetchRestaurants("My Location", myLocation, 1500);
+                            mViewModel.setCurrentPosName("My Location");
+                            mViewModel.setLocation(myLocation);
+                            mViewModel.fetchRestaurants(radius, rankBy);
                         }
 
                     } else {
@@ -173,14 +191,30 @@ public class MapFragment extends Fragment {
     }
 
     private void addMarkers(List<Restaurant> restaurants) {
-//        Log.d(TAG, "addMarkers: markers nearby : "+mViewModel.mLocation);
         map.clear();
-        for (Restaurant restaurant : restaurants) {
-            LatLng restoLocation = new LatLng(restaurant.getGeometry().getLocation().getLat(),restaurant.getGeometry().getLocation().getLng());
-            map.addMarker(new MarkerOptions().position(restoLocation).title(restaurant.getName()).icon(bitmapMarker));
+        if (restaurants != null && users != null) {
+            for (Restaurant restaurant : restaurants) {
+                LatLng restoLocation = new LatLng(restaurant.getGeometry().getLocation().getLat(), restaurant.getGeometry().getLocation().getLng());
+                if (getSubscribed(restaurant)) {
+                    map.addMarker(new MarkerOptions().position(restoLocation).title(restaurant.getName()).icon(bitmapMarkerSubscribed));
+                } else {
+                    map.addMarker(new MarkerOptions().position(restoLocation).title(restaurant.getName()).icon(bitmapMarker));
+                }
+            }
         }
         map.addMarker(new MarkerOptions().position(mViewModel.mLocation).title(mViewModel.mName));
         moveCamera(mViewModel.mLocation, DEFAULT_ZOOM);
+    }
+
+    public boolean getSubscribed(Restaurant restaurant) {
+        if (users != null) {
+            for (User user : users) {
+                if (Objects.equals(user.getRestaurantId(), restaurant.getPlaceId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private BitmapDescriptor vectorToBitmap(@DrawableRes int id) {

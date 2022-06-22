@@ -25,4 +25,8 @@
     <string name="bottom_map">Map View</string>
     <string name="bottom_list">List View</string>
     <string name="bottom_workmates">Workmates</string>
+    <string name="user_picture">User Picture</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+
 </resources>
