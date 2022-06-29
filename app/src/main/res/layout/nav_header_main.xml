@@ -29,32 +29,34 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:contentDescription="@string/nav_header_desc"
-
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_header_mail"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_header_go4lunch"
-        app:layout_constraintVertical_bias="1"
-        app:srcCompat="@drawable/baseline_account_circle_24"
-
-        />
+        app:layout_constraintTop_toTopOf="@+id/tv_header_name"
+        app:srcCompat="@drawable/baseline_account_circle_24" />
 
     <TextView
         android:id="@+id/tv_header_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="NAME"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/tv_header_mail"
-        app:layout_constraintStart_toEndOf="@+id/iv_header_picture"
-        app:layout_constraintTop_toTopOf="@+id/iv_header_picture" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_header_picture" />
 
     <TextView
         android:id="@+id/tv_header_mail"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="@string/nav_header_subtitle"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_header_picture"
-        app:layout_constraintStart_toEndOf="@+id/iv_header_picture"
-        app:layout_constraintTop_toBottomOf="@+id/tv_header_name" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_header_picture" />
 </androidx.constraintlayout.widget.ConstraintLayout>

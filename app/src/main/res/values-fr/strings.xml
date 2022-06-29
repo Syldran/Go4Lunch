@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Navigation -->
+    <string name="navigation_drawer_open">Ouvrir le panneau de navigation.</string>
+    <string name="navigation_drawer_close">Fermer le panneau de navigation.</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="drawer_lunch">VOTRE REPAS</string>
+    <string name="drawer_settings">OPTIONS</string>
+    <string name="drawer_logout">LOGOUT</string>
+    <string name="bottom_map">Vue Carte</string>
+    <string name="bottom_list">Vue Liste</string>
+    <string name="bottom_workmates">Collègues</string>
+    <string name="user_picture">Image Utilisateur</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="dialog_message_subscribed">Vous allez manger au </string>
+    <string name="dialog_message">Vous n\'avez pas encore choisi de place ou manger.</string>
+    <string name="dialog_title">Votre Repas</string>
+    <string name="search">Recherche</string>
+    <string name="workmate_eating_at">\ mange au(à)\ </string>
+    <string name="workmate_undecided">\ n\'a pas encore décidé.</string>
+
+</resources>

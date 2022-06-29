@@ -5,11 +5,17 @@ import static com.ocproject7.go4lunch.ui.SettingsActivity.RADIUS;
 import static com.ocproject7.go4lunch.ui.SettingsActivity.RANKBY;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +32,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -54,6 +61,8 @@ import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,6 +86,7 @@ public class NavigationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityNavigationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        createNotificationChannel();
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         if (sharedpreferences.getString(RANKBY, null) == null) {
@@ -110,14 +120,8 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
     private void initNavigation() {
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.bottom_map, R.id.bottom_list, R.id.bottom_workmates)
-                .setOpenableLayout(binding.drawerLayout)
-                .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        NavigationUI.setupWithNavController(binding.appBarMain.contentMain1.bottomNavView, navController);
         NavigationUI.setupWithNavController(binding.navView, navController);
         binding.navView.setNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
@@ -244,10 +248,10 @@ public class NavigationActivity extends AppCompatActivity {
         mRestaurantViewModel.getUser(id).addOnSuccessListener(user -> {
             if (user != null) {
                 if (user.getRestaurantId() != null) {
-                    builder.setMessage("You'll eat at " + user.getRestaurantName())
-                            .setTitle("Your lunch");
+                    builder.setMessage(getString(R.string.dialog_message) + user.getRestaurantName())
+                            .setTitle(R.string.dialog_title);
                 } else {
-                    builder.setMessage("You haven't chosen a place to eat yet.").setTitle("Your lunch");
+                    builder.setMessage(R.string.dialog_message_subscribed).setTitle(R.string.dialog_title);
                 }
                 builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
@@ -328,4 +332,33 @@ public class NavigationActivity extends AppCompatActivity {
             }
         }
     });
+
+    private void createNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            CharSequence name = "RestaurantNotificationChannel";
+            String description = "Notification for Go4Lunch";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("notifyGo4Lunch", name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        Intent intent = new Intent(NavigationActivity.this, ReminderNotification.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(NavigationActivity.this, 0, intent, 0);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 17);
+        calendar.set(Calendar.MINUTE, 58);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Log.d(TAG, "createNotificationChannel: "+calendar.getTime());
+        long time = calendar.getTimeInMillis();
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+//        alarmManager.setRepeating();
+    }
 }

@@ -102,6 +102,7 @@ public class RestaurantViewModel extends ViewModel {
 
     public void fetchDetailRestaurant(String id){
         mRestaurantRepository.getDetailsRestaurant(id, restaurant -> {
+            Log.d(TAG, "fetchDetailRestaurant: ");
             mDetail.setValue(restaurant);
         });
     }

@@ -1,7 +1,9 @@
 package com.ocproject7.go4lunch.ui.workmates;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +32,7 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
     private RestaurantViewModel mViewModel;
     private RecyclerView mRecyclerView;
     private WorkmatesAdapter adapter;
+    private Context mContext;
 
     private static final String TAG = "TAG_WorkmatesFragment";
 
@@ -38,23 +41,57 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_workmates, container, false);
+        Log.d(TAG, "onCreateView: ");
 
         configRecyclerView(view);
-        initData();
+//        initData();
         mViewModel.getUsers();
         return view;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: ");
+        super.onCreate(savedInstanceState);
+        initData();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView: ");
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
+        super.onDestroy();
+    }
+
     private void initData() {
-        mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
+        mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
+        mViewModel.mDetail.setValue(null);
+        mViewModel.allUsers.setValue(null);
         mViewModel.allUsers.observe(requireActivity(), users -> {
-            adapter.updateResults(users);
+            if(adapter != null){
+                adapter.updateResults(users);
+            }
         });
+
         mViewModel.mDetail.observe(requireActivity(), restaurant -> {
-            Intent intent = new Intent(WorkmatesFragment.this.getActivity(), DetailsRestaurantActivity.class);
-            intent.putExtra("DETAILS", mViewModel.mDetail.getValue());
-            detailsLauncher.launch(intent);
+            if( restaurant != null) {
+            Log.d(TAG, "initData: restaurant "+restaurant.getName());
+                Intent intent = new Intent(mContext, DetailsRestaurantActivity.class);
+                intent.putExtra("DETAILS", restaurant);
+                detailsLauncher.launch(intent);
+            }
         });
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     private void configRecyclerView(View view) {

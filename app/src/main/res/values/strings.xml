@@ -1,7 +1,6 @@
 <resources>
-    <string name="app_name">Go4Lunch</string>
+    <string name="app_name" translatable="false">Go4Lunch</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- Facebook API key -->
     <string name="facebook_application_id" translatable="false">3154812581513075</string>
@@ -14,8 +13,8 @@
     <!-- Navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Go4Lunch</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title" translatable="false">Go4Lunch</string>
+    <string name="nav_header_subtitle" translatable="false">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
@@ -27,6 +26,12 @@
     <string name="bottom_workmates">Workmates</string>
     <string name="user_picture">User Picture</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="dialog_message_subscribed">\"You\'ll eat at \"</string>
+    <string name="dialog_message">You haven\'t chosen a place to eat yet.</string>
+    <string name="dialog_title">Your lunch</string>
+    <string name="search">Search</string>
+    <string name="workmate_eating_at">\ is eating at\ </string>
+    <string name="workmate_undecided">\ hasn\'t decided yet.</string>
 
 
 </resources>

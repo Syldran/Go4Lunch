@@ -5,7 +5,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/action_search"
-            android:title="Search"
+            android:title="@string/search"
             android:orderInCategory="1"
             android:icon="@drawable/ic_search"
             app:showAsAction="always"

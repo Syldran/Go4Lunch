@@ -50,7 +50,7 @@ public class RestaurantRepository {
     }
 
     public void getDetailsRestaurant(String id, OnDetailsRestaurant onDetailsRestaurantCallBack) {
-        RetrofitService.getPlacesApi().getDetails(id, "AIzaSyDh9-vXD67X64ASMqxSS-JQUy06g2mF2OE").enqueue(new Callback<DetailsResponse>() {
+        RetrofitService.getPlacesApi().getDetails(id, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<DetailsResponse>() {
             @Override
             public void onResponse(Call<DetailsResponse> call, Response<DetailsResponse> response) {
                 if (response.code() == 200 && response.body() != null) {

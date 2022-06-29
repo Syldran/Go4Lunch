@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.databinding.WorkmatesItemBinding;
 import com.ocproject7.go4lunch.models.User;
 import com.ocproject7.go4lunch.ui.DetailsRestaurantActivity;
@@ -38,9 +39,9 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         }
 
         if (user.getRestaurantId() != null) {
-            holder.mBinding.tvLunchAt.setText(user.getUsername() + " is eating at " + user.getRestaurantName());
+            holder.mBinding.tvLunchAt.setText(user.getUsername() + holder.itemView.getContext().getString(R.string.workmate_eating_at) + user.getRestaurantName());
         } else {
-            holder.mBinding.tvLunchAt.setText(user.getUsername() + " hasn't decided yet");
+            holder.mBinding.tvLunchAt.setText(user.getUsername() + holder.itemView.getContext().getString(R.string.workmate_undecided));
         }
 
         holder.itemView.setOnClickListener(v -> {

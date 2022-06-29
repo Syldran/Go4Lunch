@@ -84,9 +84,6 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
         @Override
         public void onActivityResult(ActivityResult result) {
             mViewModel.getUsers();
-//            if (result.getResultCode() == Activity.RESULT_OK){
-//                Log.d(TAG, "onActivityResult: HEREEE");
-//            }
         }
     });
 }
