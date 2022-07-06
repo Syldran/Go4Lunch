@@ -23,14 +23,14 @@ public class RestaurantRepository {
 
 
     public void getRestaurants(String location, int radius, String rankBy, OnGetRestaurants onGetRestaurantsCallBack) {
-        Log.d(TAG, "getRestaurants: location & radius = " + location + " & " + radius);
+//        Log.d(TAG, "getRestaurants: location & radius = " + location + " & " + radius);
 
 
         RetrofitService.getPlacesApi().getNearBy(location, radius, "restaurant", rankBy, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<NearbyResponse>() {
             @Override
             public void onResponse(@NonNull Call<NearbyResponse> call, @NonNull Response<NearbyResponse> response) {
                 if (response.code() == 200 && response.body() != null) {
-                    Log.d(TAG, "onResponse: ok");
+//                    Log.d(TAG, "onResponse: ok");
                     onGetRestaurantsCallBack.onGetRestaurantData(response.body().getResults());
                 } else {
                     try {

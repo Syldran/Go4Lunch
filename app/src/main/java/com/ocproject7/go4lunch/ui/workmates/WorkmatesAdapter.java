@@ -1,5 +1,7 @@
 package com.ocproject7.go4lunch.ui.workmates;
 
+import static com.ocproject7.go4lunch.utils.Utils.loadImage;
+
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -9,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.databinding.WorkmatesItemBinding;
 import com.ocproject7.go4lunch.models.User;
-import com.ocproject7.go4lunch.ui.DetailsRestaurantActivity;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         final User user = mUsers.get(position);
 
         if (user.getUrlPicture() != null) {
-            DetailsRestaurantActivity.loadImage(holder.itemView.getContext(), user.getUrlPicture(), holder.mBinding.ivUserPicture);
+            loadImage(holder.itemView.getContext(), user.getUrlPicture(), holder.mBinding.ivUserPicture);
         }
 
         if (user.getRestaurantId() != null) {

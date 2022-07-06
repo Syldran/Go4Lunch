@@ -58,7 +58,7 @@ public class UserRepository extends AppCompatActivity {
             String uid = user.getUid();
             String mail = user.getEmail();
 
-            User userToCreate = new User(uid, username, mail, urlPicture);
+            User userToCreate = new User(uid, username, mail, urlPicture, null, null);
 
             getUsersCollection().document(uid).set(userToCreate);
         }

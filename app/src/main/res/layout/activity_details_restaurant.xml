@@ -108,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="PHONE" />
+                android:text="@string/details_phone" />
 
         </LinearLayout>
 
@@ -132,7 +132,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="RATE" />
+                android:text="@string/details_rate" />
 
         </LinearLayout>
 
@@ -156,7 +156,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="WEBSITE" />
+                android:text="@string/details_website" />
 
         </LinearLayout>
 

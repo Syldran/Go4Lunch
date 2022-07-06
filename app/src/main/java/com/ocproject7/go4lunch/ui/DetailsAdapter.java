@@ -1,5 +1,7 @@
 package com.ocproject7.go4lunch.ui;
 
+import static com.ocproject7.go4lunch.utils.Utils.loadImage;
+
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -31,12 +33,12 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHold
         final User user = mUsers.get(position);
 
         if (user.getUrlPicture() != null) {
-            DetailsRestaurantActivity.loadImage(holder.itemView.getContext(), user.getUrlPicture(), holder.mBinding.ivSubscribedPicture);
+            loadImage(holder.itemView.getContext(), user.getUrlPicture(), holder.mBinding.ivSubscribedPicture);
         } else {
             holder.mBinding.ivSubscribedPicture.setImageResource(R.drawable.baseline_account_circle_24);
         }
 
-        holder.mBinding.tvSubscriber.setText(user.getUsername() + " is joining");
+        holder.mBinding.tvSubscriber.setText(new StringBuilder().append(user.getUsername()).append(holder.itemView.getContext().getString(R.string.details_joining)).toString());
     }
 
     @Override

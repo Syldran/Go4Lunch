@@ -26,12 +26,16 @@
     <string name="bottom_workmates">Workmates</string>
     <string name="user_picture">User Picture</string>
     <string name="title_activity_settings">SettingsActivity</string>
-    <string name="dialog_message_subscribed">\"You\'ll eat at \"</string>
+    <string name="dialog_message_subscribed">You\'ll eat at\ </string>
     <string name="dialog_message">You haven\'t chosen a place to eat yet.</string>
     <string name="dialog_title">Your lunch</string>
     <string name="search">Search</string>
     <string name="workmate_eating_at">\ is eating at\ </string>
     <string name="workmate_undecided">\ hasn\'t decided yet.</string>
+    <string name="details_joining">\" is joining\"</string>
+    <string name="details_phone">PHONE</string>
+    <string name="details_rate">RATE</string>
+    <string name="details_website">WEBSITE</string>
 
 
 </resources>

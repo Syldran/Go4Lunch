@@ -1,6 +1,9 @@
 package com.ocproject7.go4lunch.ui;
 
 
+import static com.ocproject7.go4lunch.utils.Utils.loadImage;
+import static com.ocproject7.go4lunch.utils.Utils.notifyGo4Lunch;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -32,9 +35,8 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
     private static String TAG = "TAG_DetailsRestaurantActivity";
     private Restaurant mRestaurant;
     private boolean isSubscribed;
-    private List<User> mSubscribers = new ArrayList<>();
+    private final List<User> mSubscribers = new ArrayList<>();
     private DetailsAdapter adapter;
-    private RecyclerView mRecyclerView;
 
     ActivityDetailsRestaurantBinding binding;
 
@@ -98,16 +100,20 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
         });
 
         binding.fabSubscribeRestaurant.setOnClickListener(view -> {
+            String message = "";
             if (isSubscribed) {
                 mRestaurantViewModel.updateRestaurant(null, null);
                 binding.fabSubscribeRestaurant.setImageResource(R.drawable.ic_check);
                 isSubscribed = false;
                 mRestaurantViewModel.getUsers();
+                notifyGo4Lunch(message, getApplicationContext(), false);
             } else {
                 mRestaurantViewModel.updateRestaurant(restaurant.getPlaceId(), restaurant.getName());
                 binding.fabSubscribeRestaurant.setImageResource(R.drawable.ic_check_circle);
                 isSubscribed = true;
                 mRestaurantViewModel.getUsers();
+                message = "You'll eat at "+restaurant.getName();
+                notifyGo4Lunch(message, getApplicationContext(), true);
             }
         });
 
@@ -130,20 +136,17 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
                     }
                 }
             }
-            adapter.updateResults(mSubscribers);
+            if (mSubscribers != null) {
+                adapter.updateResults(mSubscribers);
+            }
         });
     }
 
     private void configRecyclerView() {
-        mRecyclerView = binding.recyclerView;
+        RecyclerView recyclerView = binding.recyclerView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(layoutManager);
         adapter = new DetailsAdapter(new ArrayList<>());
-        mRecyclerView.setAdapter(adapter);
-    }
-
-
-    public static void loadImage(Context context, String url, ImageView view) {
-        Glide.with(context).load(url).apply(RequestOptions.centerCropTransform()).into(view);
+        recyclerView.setAdapter(adapter);
     }
 }

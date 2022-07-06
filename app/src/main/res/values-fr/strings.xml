@@ -15,11 +15,15 @@
     <string name="bottom_workmates">Collègues</string>
     <string name="user_picture">Image Utilisateur</string>
     <string name="title_activity_settings">SettingsActivity</string>
-    <string name="dialog_message_subscribed">Vous allez manger au </string>
+    <string name="dialog_message_subscribed">Vous allez manger au(à)\ </string>
     <string name="dialog_message">Vous n\'avez pas encore choisi de place ou manger.</string>
     <string name="dialog_title">Votre Repas</string>
     <string name="search">Recherche</string>
     <string name="workmate_eating_at">\ mange au(à)\ </string>
     <string name="workmate_undecided">\ n\'a pas encore décidé.</string>
+    <string name="details_joining">\ a rejoint.</string>
+    <string name="details_phone">APPEL</string>
+    <string name="details_rate">NOTE</string>
+    <string name="details_website">SITE\ WEB</string>
 
 </resources>

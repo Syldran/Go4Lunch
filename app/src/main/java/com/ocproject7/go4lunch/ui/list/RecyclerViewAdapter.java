@@ -1,5 +1,7 @@
 package com.ocproject7.go4lunch.ui.list;
 
+import static com.ocproject7.go4lunch.utils.Utils.loadImage;
+
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -50,7 +52,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         final Restaurant restaurant = mRestaurants.get(position);
         if (restaurant.getPhotos() != null) {
             String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=" + restaurant.getPhotos().get(0).getPhotoReference() + "&key=AIzaSyDCXBbnL9Tw5L_0G6MMtr-F7ibrX-oAx40";
-            DetailsRestaurantActivity.loadImage(holder.itemView.getContext(), url, holder.mBinding.imgRecyclerViewRestaurant);
+            loadImage(holder.itemView.getContext(), url, holder.mBinding.imgRecyclerViewRestaurant);
         } else {
             holder.mBinding.imgRecyclerViewRestaurant.setImageResource(R.drawable.lunch_blurred);
         }

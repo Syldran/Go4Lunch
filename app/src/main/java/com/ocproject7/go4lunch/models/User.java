@@ -17,11 +17,13 @@ public class User {
     public User() {
     }
 
-    public User(String userId, String username, String email, @Nullable String urlPicture) {
+    public User(String userId, String username, String email, @Nullable String urlPicture, String restaurantId, String restaurantName) {
         this.userId = userId;
         this.username = username;
         this.email = email;
         this.urlPicture = urlPicture;
+        this.restaurantId = restaurantId;
+        this.restaurantName = restaurantName;
     }
 
     public String getUserId() {

@@ -5,6 +5,7 @@ import static com.ocproject7.go4lunch.ui.SettingsActivity.RADIUS;
 import static com.ocproject7.go4lunch.ui.SettingsActivity.RANKBY;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -47,10 +50,14 @@ import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 import java.util.List;
 import java.util.Objects;
 
-public class MapFragment extends Fragment{
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class MapFragment extends Fragment implements EasyPermissions.PermissionCallbacks {
 
     private static String TAG = "TAG_MapFragment";
     private static final float DEFAULT_ZOOM = 15f;
+    private static final int PERMISSION_LOCATION_REQUEST_CODE = 101;
 
     private SupportMapFragment mapFragment;
     private String rankBy;
@@ -81,7 +88,8 @@ public class MapFragment extends Fragment{
 
             map = googleMap;
             users = mViewModel.allUsers.getValue();
-
+            bitmapMarker = vectorToBitmap(R.drawable.ic_restaurant_marker);
+            bitmapMarkerSubscribed = vectorToBitmap(R.drawable.ic_restaurant_marker_subscribed);
 
             map.setOnMyLocationClickListener(location -> Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show());
             map.setOnMyLocationButtonClickListener(() -> {
@@ -93,8 +101,6 @@ public class MapFragment extends Fragment{
                 return false;
             });
 
-            bitmapMarker = vectorToBitmap(R.drawable.ic_restaurant_marker);
-            bitmapMarkerSubscribed = vectorToBitmap(R.drawable.ic_restaurant_marker_subscribed);
             mViewModel.allUsers.observe(requireActivity(), users1 -> {
                 users = users1;
                 addMarkers(mViewModel.mRestaurants.getValue());
@@ -105,9 +111,15 @@ public class MapFragment extends Fragment{
 
             });
 
-            getCurrentLocation();
-            enableMyLocation();
 
+
+            if (hasLocationPermission()){
+                getCurrentLocation();
+                enableMyLocation();
+                Log.d(TAG, "onMapReady: has permision");
+            } else {
+                requestLocationPermission();
+            }
         }
     };
 
@@ -140,16 +152,6 @@ public class MapFragment extends Fragment{
     }
 
     private void enableMyLocation() {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
         map.setMyLocationEnabled(true);
     }
 
@@ -225,5 +227,38 @@ public class MapFragment extends Fragment{
         vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+
+    private boolean hasLocationPermission() {
+        return EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+
+    private void requestLocationPermission() {
+        EasyPermissions.requestPermissions(this, "This application cannot work without Location Permission.", PERMISSION_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+        Toast.makeText(requireContext(), "permissions granted", Toast.LENGTH_SHORT).show();
+        getCurrentLocation();
+        enableMyLocation();
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this).build().show();
+        } else {
+            requestLocationPermission();
+        }
     }
 }

@@ -108,7 +108,7 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     public void fetchRestaurants(int radius, String rankBy) {
-        Log.d(TAG, "fetchRestaurants: ");
+//        Log.d(TAG, "fetchRestaurants: ");
         String sLocation = mLocation.latitude + "," + mLocation.longitude;
         mRestaurantRepository.getRestaurants(sLocation, radius, rankBy, restaurants -> {
             mRestaurants.setValue(restaurants);
@@ -136,5 +136,6 @@ public class RestaurantViewModel extends ViewModel {
         allUsers = new MutableLiveData<>();
         mName = null;
         mDetail = new MutableLiveData<>();
+        mLocation = new LatLng(48.856614,2.3522219);
     }
 }
