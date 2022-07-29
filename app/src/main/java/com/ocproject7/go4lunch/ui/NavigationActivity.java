@@ -7,10 +7,8 @@ import static com.ocproject7.go4lunch.utils.Utils.loadImage;
 import static com.ocproject7.go4lunch.utils.Utils.notifyGo4Lunch;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -55,13 +53,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.ocproject7.go4lunch.BuildConfig;
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.databinding.ActivityNavigationBinding;
-import com.ocproject7.go4lunch.utils.Utils;
+import com.ocproject7.go4lunch.models.User;
 import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 import com.ocproject7.go4lunch.viewmodels.ViewModelFactory;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 
 public class NavigationActivity extends AppCompatActivity {
@@ -101,20 +99,35 @@ public class NavigationActivity extends AppCompatActivity {
         initToolbar();
         initNavigation();
         initViewModel();
+        mRestaurantViewModel.currentUser.observe(this, user -> {
+            Log.d(TAG, "onCreate: currentUser Observed");
+            if (user != null) {
+                isSubscribed = user.getRestaurantId() != null;
+            } else {
+                isSubscribed = false;
+            }
+            String message = "";
+            if (isSubscribed) {
+                message = getString(R.string.eat_at) + Objects.requireNonNull(mRestaurantViewModel.currentUser.getValue()).getRestaurantName();
+                notifyGo4Lunch(message, getApplicationContext(), true);
+            } else {
+                notifyGo4Lunch(message, getApplicationContext(), false);
+            }
+            mRestaurantViewModel.getUsers();
+        });
         if (mRestaurantViewModel.isCurrentUserLogged()) {
+            mRestaurantViewModel.updateUserFromFirestore(mRestaurantViewModel.getCurrentUser().getUid());
             initDrawerUi();
             FirebaseUser currentUser = mRestaurantViewModel.getCurrentUser();
-            mRestaurantViewModel.getUser(currentUser.getUid()).addOnSuccessListener(user -> {
-                isSubscribed = user.getRestaurantId() != null;
-                String message = "";
-                if( isSubscribed){
-                    message = "You'll eat at "+ user.getRestaurantName();
-                    notifyGo4Lunch(message, getApplicationContext(), true);
-                } else {
-                    notifyGo4Lunch(message, getApplicationContext(), false);
-                }
-            });
-            mRestaurantViewModel.getUsers();
+//
+//            String message = "";
+//            if (isSubscribed) {
+//                message = getString(R.string.eat_at) + mRestaurantViewModel.currentUser.getValue().getRestaurantName();
+//                notifyGo4Lunch(message, getApplicationContext(), true);
+//            } else {
+//                notifyGo4Lunch(message, getApplicationContext(), false);
+//            }
+//            mRestaurantViewModel.getUsers();
         } else {
 //            Log.d(TAG, "onCreate: is not logged");
             startSignInActivity();
@@ -233,16 +246,20 @@ public class NavigationActivity extends AppCompatActivity {
             FirebaseUser currentUser = mRestaurantViewModel.getCurrentUser();
             checkFirestoreData(currentUser.getUid());
             initDrawerUi();
-            mRestaurantViewModel.getUser(currentUser.getUid()).addOnSuccessListener(user -> {
-                isSubscribed = user.getRestaurantId() != null;
-                String message = "";
-                if(isSubscribed){
-                    message = "You'll eat at "+ user.getRestaurantName();
-                    notifyGo4Lunch(message, getApplicationContext(), true);
-                } else {
-                    notifyGo4Lunch(message, getApplicationContext(), false);
-                }
-            });
+//            User user = mRestaurantViewModel.currentUser.getValue();
+//            if (user != null) {
+//                isSubscribed = user.getRestaurantId() != null;
+//            } else {
+//                isSubscribed = false;
+//            }
+//            String message = "";
+//            if (isSubscribed) {
+//                message = getString(R.string.eat_at) + user.getRestaurantName();
+//                notifyGo4Lunch(message, getApplicationContext(), true);
+//            } else {
+//                notifyGo4Lunch(message, getApplicationContext(), false);
+//            }
+
             Toast.makeText(this, "Connection Succeeded", Toast.LENGTH_SHORT).show();
         } else {
             // ERRORS
@@ -260,39 +277,39 @@ public class NavigationActivity extends AppCompatActivity {
 
 
     private void checkFirestoreData(String id) {
-        mRestaurantViewModel.getUser(id).addOnSuccessListener(user -> {
-            if (user == null) {
-//                Log.d(TAG, "handleResponseAfterSignIn:  current user not in firestore ");
-                mRestaurantViewModel.createUser();
-                mRestaurantViewModel.getUsers();
-            } else {
+        Log.d(TAG, "checkFirestoreData: "+mRestaurantViewModel.currentUser.getValue());
+        if (mRestaurantViewModel.currentUser.getValue() == null) {
+                Log.d(TAG,  " current user not in firestore ");
+            mRestaurantViewModel.createUser();
+            mRestaurantViewModel.getUsers();
+            mRestaurantViewModel.updateUserFromFirestore(id);
+        } else {
 //                Log.d(TAG, "handleResponseAfterSignIn: user is in firestore : " + mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()));
-            }
-        });
+        }
     }
 
 
     private void checkFirestoreIsSubscribed(String id, AlertDialog.Builder builder) {
-        mRestaurantViewModel.getUser(id).addOnSuccessListener(user -> {
-            if (user != null) {
-                if (user.getRestaurantId() != null) {
-                    builder.setMessage("You'll eat at " + user.getRestaurantName())
-                            .setTitle("Your lunch");
-                    isSubscribed = true;
-                } else {
-                    builder.setMessage("You haven't chosen a place to eat yet.").setTitle("Your lunch");
-                    isSubscribed = false;
-                }
-                builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+        User user = mRestaurantViewModel.currentUser.getValue();
+        if (user != null) {
+            if (user.getRestaurantId() != null) {
+                builder.setMessage(getString(R.string.eat_at) + user.getRestaurantName())
+                        .setTitle(getString(R.string.your_lunch));
+                isSubscribed = true;
+            } else {
+                builder.setMessage(getString(R.string.dialog_message)).setTitle(getString(R.string.your_lunch));
+                isSubscribed = false;
             }
-        });
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
     }
 
     private void initDrawerUi() {

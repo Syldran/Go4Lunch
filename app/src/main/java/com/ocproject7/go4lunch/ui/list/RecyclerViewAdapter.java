@@ -59,7 +59,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         holder.mBinding.textRecyclerViewTitle.setText(restaurant.getName());
         holder.mBinding.textRecyclerViewAddress.setText(restaurant.getVicinity());
-        holder.mBinding.textRecyclerViewOpening.setText(displayOpeningHours(restaurant.getOpeningHours()));
+        holder.mBinding.textRecyclerViewOpening.setText(displayOpeningHours(restaurant.getOpeningHours(), holder));
 
         if (restaurant.getRating() != null) {
             float rating = restaurant.getRating().floatValue() / 5f * 3f;
@@ -78,20 +78,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
-    public String displayOpeningHours(OpeningHours openingHours) {
+    public String displayOpeningHours(OpeningHours openingHours, @NonNull ViewHolder holder) {
         if (openingHours == null || openingHours.getPeriods() == null) {
-            return "Unspecified opening hours";
+            return holder.itemView.getContext().getString(R.string.list_adapter_unspecified_opening_hours);
         }
         if (openingHours.getOpenNow() != null && !openingHours.getOpenNow()) {
-            return "Closed";
+            return holder.itemView.getContext().getString(R.string.list_adapter_closed);
         }
+
         int currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
         List<Period> periodsOfCurrentDay = new ArrayList<>();
 
         //find periods for the current day
         for (Period period : openingHours.getPeriods()) {
             if (period.getClose() == null) {
-                return "Open 27/7";
+                return holder.itemView.getContext().getString(R.string.list_adapter_open24_7);
             }
             if (period.getOpen().getDay() == currentDayOfWeek) {
                 periodsOfCurrentDay.add(period);
@@ -109,9 +110,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 if (Integer.parseInt(period.getOpen().getTime()) < timeNow && Integer.parseInt(period.getClose().getTime()) > timeNow) {  // if current time between closure and opening
                     int timeBeforeClosure = Integer.parseInt(period.getClose().getTime()) - timeNow;
                     if (timeBeforeClosure <= 100) {
-                        return "Closing soon";
+                        return holder.itemView.getContext().getString(R.string.list_adapter_closing_soon);
                     } else {
-                        return "Open until " + formattedTime(period, true);
+                        return holder.itemView.getContext().getString(R.string.list_adapter_open_until) + formattedTime(period, true);
                     }
                 }
             } else { // closure is next day
@@ -124,12 +125,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 if ((Integer.parseInt(period.getOpen().getTime()) < timeNow) && (Integer.parseInt(period.getClose().getTime()) + 2400 > timeNow)) {
                     int timeBeforeClosure = Integer.parseInt(period.getClose().getTime()) + 2400 - timeNow;
                     if (timeBeforeClosure < 0) {
-                        return "Closed";
+                        return holder.itemView.getContext().getString(R.string.list_adapter_closed);
                     }
                     if (timeBeforeClosure <= 100) {
-                        return "Closing soon";
+                        return holder.itemView.getContext().getString(R.string.list_adapter_closing_soon);
                     } else {
-                        return "Open until " + formattedTime(period, afterMidnight);
+                        return holder.itemView.getContext().getString(R.string.list_adapter_open_until) + formattedTime(period, afterMidnight);
                     }
                 }
             }

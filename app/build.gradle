@@ -22,6 +22,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "GOOGLE_API_KEY", GOOGLE_API_KEY
+            resValue "string", "GOOGLE_API_KEY", GOOGLE_API_KEY
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -52,13 +56,13 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.3.0')
     implementation 'com.firebaseui:firebase-ui-auth:8.0.1'
     //firebase - firestore
-    implementation 'com.google.firebase:firebase-firestore:24.2.0'
+    implementation 'com.google.firebase:firebase-firestore:24.2.1'
 
     //for firebase auth with Facebook
     implementation 'com.facebook.android:facebook-android-sdk:8.1.0'
 
     //google maps
-    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:20.0.0'
     implementation 'com.google.android.libraries.places:places:2.6.0'
     implementation 'com.google.maps.android:android-maps-utils:2.2.6'
@@ -68,6 +72,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'androidx.preference:preference:1.2.0'
+
+    testImplementation "org.mockito:mockito-core:4.6.1"
+    androidTestImplementation "org.mockito:mockito-android:4.3.1"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

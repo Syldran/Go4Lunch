@@ -46,7 +46,7 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
     }
 
     private void initData() {
-        mViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
         mViewModel.mDetail.setValue(null);
 
         mViewModel.allUsers.observe(getViewLifecycleOwner(), users -> {
@@ -58,7 +58,7 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
         mViewModel.mDetail.observe(getViewLifecycleOwner(), restaurant -> {
             if (restaurant != null) {
                 Log.d(TAG, "initData: restaurant " + restaurant.getName());
-                Intent intent = new Intent(getContext(), DetailsRestaurantActivity.class);
+                Intent intent = new Intent(getActivity(), DetailsRestaurantActivity.class);
                 intent.putExtra("DETAILS", restaurant);
                 detailsLauncher.launch(intent);
             }
@@ -75,13 +75,16 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
 
     @Override
     public void onWorkmateClick(User user) {
-        mViewModel.fetchDetailRestaurant(user.getRestaurantId());
+        mViewModel.fetchDetailsRestaurant(user.getRestaurantId());
+
     }
 
     ActivityResultLauncher<Intent> detailsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
             mViewModel.getUsers();
+            mViewModel.updateUserFromFirestore(mViewModel.getCurrentUser().getUid());
+            Log.d(TAG, "onActivityResult: workmate");
         }
     });
 }

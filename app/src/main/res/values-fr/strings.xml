@@ -25,5 +25,13 @@
     <string name="details_phone">APPEL</string>
     <string name="details_rate">NOTE</string>
     <string name="details_website">SITE\ WEB</string>
+    <string name="list_adapter_closing_soon">Ferme bientôt.</string>
+    <string name="list_adapter_open_until">Ouvre jusqu\'à\ </string>
+    <string name="list_adapter_open24_7">Ouvert 27/7</string>
+    <string name="list_adapter_closed">Fermé</string>
+    <string name="list_adapter_unspecified_opening_hours">Heures d\'ouverture non spécifiés</string>
+    <string name="eat_at">Vous mangez au\ </string>
+    <string name="your_lunch">Your lunch</string>
+    <string name="ok">ok</string>
 
 </resources>

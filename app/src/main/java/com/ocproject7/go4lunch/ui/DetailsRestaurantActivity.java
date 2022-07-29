@@ -4,11 +4,10 @@ package com.ocproject7.go4lunch.ui;
 import static com.ocproject7.go4lunch.utils.Utils.loadImage;
 import static com.ocproject7.go4lunch.utils.Utils.notifyGo4Lunch;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.ImageView;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.ocproject7.go4lunch.BuildConfig;
 import com.ocproject7.go4lunch.R;
 import com.ocproject7.go4lunch.databinding.ActivityDetailsRestaurantBinding;
@@ -46,15 +43,7 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
         binding = ActivityDetailsRestaurantBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mRestaurantViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
-        mRestaurant = getIntent().getParcelableExtra("DETAILS");
-        configureUi(mRestaurant);
-        initData();
-        configRecyclerView();
-        mRestaurantViewModel.getUsers();
-    }
-
-    private void checkIsSubscribed() {
-        mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()).addOnSuccessListener(user -> {
+        mRestaurantViewModel.currentUser.observe(this, user -> {
             if (user != null) {
                 if (user.getRestaurantId() == null || !user.getRestaurantId().equals(mRestaurant.getPlaceId())) {
                     isSubscribed = false;
@@ -67,11 +56,17 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
                 isSubscribed = false;
             }
         });
+        mRestaurantViewModel.updateUserFromFirestore(mRestaurantViewModel.getCurrentUser().getUid());
+        mRestaurant = getIntent().getParcelableExtra("DETAILS");
+        configureUi(mRestaurant);
+        initData();
+        configRecyclerView();
+        mRestaurantViewModel.getUsers();
     }
+
 
     private void configureUi(Restaurant restaurant) {
 
-        checkIsSubscribed();
 
         binding.tvNameRestaurant.setText(restaurant.getName());
         if (restaurant.getRating() != null) {
@@ -112,19 +107,18 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
                 binding.fabSubscribeRestaurant.setImageResource(R.drawable.ic_check_circle);
                 isSubscribed = true;
                 mRestaurantViewModel.getUsers();
-                message = "You'll eat at "+restaurant.getName();
+                message = getString(R.string.eat_at) + restaurant.getName();
                 notifyGo4Lunch(message, getApplicationContext(), true);
             }
         });
 
         if (restaurant.getPhotos() != null) {
-            String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=" + restaurant.getPhotos().get(0).getPhotoReference() + "&key=" + BuildConfig.GOOGLE_API_KEY;
+            String url = getString(R.string.url_start) + restaurant.getPhotos().get(0).getPhotoReference() + getString(R.string.url_key) + BuildConfig.GOOGLE_API_KEY;
             loadImage(DetailsRestaurantActivity.this, url, binding.ivRestaurantPhoto);
         }
     }
 
     private void initData() {
-        mRestaurantViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
         mRestaurantViewModel.allUsers.observe(this, users -> {
             if (users != null) {
                 if (mSubscribers != null) {

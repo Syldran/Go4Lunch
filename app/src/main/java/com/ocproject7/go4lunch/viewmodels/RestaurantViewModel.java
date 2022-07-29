@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
@@ -20,6 +22,7 @@ import com.ocproject7.go4lunch.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RestaurantViewModel extends ViewModel {
 
@@ -35,9 +38,12 @@ public class RestaurantViewModel extends ViewModel {
     public LatLng mLocation;
     public String mName;
     public MutableLiveData<List<User>> allUsers;
+    public MutableLiveData<User> currentUser;
 
+    // __________ USER __________
 
     public void createUser() {
+        Log.d(TAG, "createUser: ");
         mUserRepository.createUser();
     }
 
@@ -50,6 +56,7 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     public Task<Void> signOut(Context context) {
+        currentUser = new MutableLiveData<>();
         return mUserRepository.signOut(context);
     }
 
@@ -58,14 +65,25 @@ public class RestaurantViewModel extends ViewModel {
         return mUserRepository.getUserData(id).continueWith(task -> task.getResult().toObject(User.class));
     }
 
-    // Update Chosen Restaurant
-    public void updateRestaurant(String id, String name) {
-        String uid = getCurrentUser().getUid();
-        if (uid != null) {
-            mUserRepository.getUsersCollection().document(uid).update("restaurantId", id);
-            mUserRepository.getUsersCollection().document(uid).update("restaurantName", name);
-        }
+//    public void updateUserFromFirestore(String id){
+//        mUserRepository.getUserData(id).continueWith(task -> task.getResult().toObject(User.class)).addOnSuccessListener(new OnSuccessListener<User>() {
+//            @Override
+//            public void onSuccess(User user) {
+//                Log.d(TAG, "onSuccess: "+user);
+//                currentUser.setValue(user);
+//            }
+//        });
+//    }
+
+    public void updateUserFromFirestore(String id){
+        mUserRepository.getUserData(id).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                currentUser.setValue(documentSnapshot.toObject(User.class));
+            }
+        });
     }
+
 
     public void getUsers() {
         List<User> users = new ArrayList<>();
@@ -88,11 +106,21 @@ public class RestaurantViewModel extends ViewModel {
     }
 
 
+
+    // ________ RESTAURANT ________
+
+    // Update Chosen Restaurant
+    public void updateRestaurant(String id, String name) {
+        String uid = getCurrentUser().getUid();
+        mUserRepository.getUsersCollection().document(uid).update("restaurantId", id);
+        mUserRepository.getUsersCollection().document(uid).update("restaurantName", name);
+    }
+
     public void fetchDetailsRestaurants() {
         if (mDetailsRestaurants != null) {
             mDetailsRestaurants.clear();
         }
-        for (int i = 0; i < mRestaurants.getValue().size(); i++) {
+        for (int i = 0; i < Objects.requireNonNull(mRestaurants.getValue()).size(); i++) {
             mRestaurantRepository.getDetailsRestaurant(mRestaurants.getValue().get(i).getPlaceId(), restaurant -> {
                 mDetailsRestaurants.add(restaurant);
                 mDetails.setValue(mDetailsRestaurants);
@@ -100,7 +128,7 @@ public class RestaurantViewModel extends ViewModel {
         }
     }
 
-    public void fetchDetailRestaurant(String id){
+    public void fetchDetailsRestaurant(String id){
         mRestaurantRepository.getDetailsRestaurant(id, restaurant -> {
             Log.d(TAG, "fetchDetailRestaurant: ");
             mDetail.setValue(restaurant);
@@ -137,5 +165,6 @@ public class RestaurantViewModel extends ViewModel {
         mName = null;
         mDetail = new MutableLiveData<>();
         mLocation = new LatLng(48.856614,2.3522219);
+        currentUser = new MutableLiveData<>();
     }
 }

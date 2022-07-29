@@ -5,12 +5,14 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ocproject7.go4lunch.models.User;
@@ -65,7 +67,7 @@ public class UserRepository extends AppCompatActivity {
     }
 
 
-    // Get User Data from Firestore
+
     public Task<DocumentSnapshot> getUserData(String uid) {
         if (uid != null) {
             return this.getUsersCollection().document(uid).get();

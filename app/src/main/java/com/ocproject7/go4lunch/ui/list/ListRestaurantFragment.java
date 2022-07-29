@@ -31,7 +31,6 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
 
     RestaurantViewModel mViewModel;
     private RecyclerViewAdapter adapter;
-    private RecyclerView mRecyclerView;
 
     private static String TAG = "TAG_ListRestaurantFragment";
 
@@ -53,11 +52,11 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
     public void configRecyclerView(View view) {
         Log.d(TAG, "configRecyclerView: ");
         // Set the adapter
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(layoutManager);
         adapter = new RecyclerViewAdapter(new ArrayList<>(), this);
-        mRecyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
     }
 
 
@@ -84,6 +83,8 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
         @Override
         public void onActivityResult(ActivityResult result) {
             mViewModel.getUsers();
+            mViewModel.updateUserFromFirestore(mViewModel.getCurrentUser().getUid());
+            Log.d(TAG, "onActivityResult: list");
         }
     });
 }
