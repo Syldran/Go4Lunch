@@ -52,7 +52,7 @@ public class UserRepository extends AppCompatActivity {
     }
 
     // Create User in Firestore
-    public void createUser() {
+    public void createUser() { //passer en paramètre un FirebaseUser
         FirebaseUser user = getCurrentUser();
         if (user != null) {
             String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
@@ -66,6 +66,21 @@ public class UserRepository extends AppCompatActivity {
         }
     }
 
+    /*
+    // Create User in Firestore
+    public void createUser(FirebaseUser user) {
+        if (user != null) {
+            String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
+            String username = user.getDisplayName();
+            String uid = user.getUid();
+            String mail = user.getEmail();
+
+            User userToCreate = new User(uid, username, mail, urlPicture, null, null);
+
+            getUsersCollection().document(uid).set(userToCreate);
+        }
+    }
+*/
 
 
     public Task<DocumentSnapshot> getUserData(String uid) {

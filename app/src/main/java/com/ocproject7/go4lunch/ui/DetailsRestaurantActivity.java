@@ -6,6 +6,7 @@ import static com.ocproject7.go4lunch.utils.Utils.notifyGo4Lunch;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -69,6 +70,11 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
 
 
         binding.tvNameRestaurant.setText(restaurant.getName());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            binding.tvNameRestaurant.setTooltipText(restaurant.getName());
+        }
+
         if (restaurant.getRating() != null) {
             binding.ratingBar.setRating(restaurant.getRating().floatValue() / 5 * 3);
         }

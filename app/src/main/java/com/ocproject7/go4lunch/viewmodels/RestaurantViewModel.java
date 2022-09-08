@@ -12,9 +12,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.ocproject7.go4lunch.data.callback.OnDetailsRestaurant;
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
 import com.ocproject7.go4lunch.data.repositories.UserRepository;
 import com.ocproject7.go4lunch.models.Restaurant;
@@ -60,21 +62,6 @@ public class RestaurantViewModel extends ViewModel {
         return mUserRepository.signOut(context);
     }
 
-    public Task<User> getUser(String id) {
-        // Get the user from Firestore and cast it to a User model Object
-        return mUserRepository.getUserData(id).continueWith(task -> task.getResult().toObject(User.class));
-    }
-
-//    public void updateUserFromFirestore(String id){
-//        mUserRepository.getUserData(id).continueWith(task -> task.getResult().toObject(User.class)).addOnSuccessListener(new OnSuccessListener<User>() {
-//            @Override
-//            public void onSuccess(User user) {
-//                Log.d(TAG, "onSuccess: "+user);
-//                currentUser.setValue(user);
-//            }
-//        });
-//    }
-
     public void updateUserFromFirestore(String id){
         mUserRepository.getUserData(id).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -93,8 +80,9 @@ public class RestaurantViewModel extends ViewModel {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                User user = document.toObject(User.class);
+//                            for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()){
+                            for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
+                                User user = documentSnapshot.toObject(User.class);
                                 users.add(user);
                             }
                             allUsers.setValue(users);
@@ -112,8 +100,9 @@ public class RestaurantViewModel extends ViewModel {
     // Update Chosen Restaurant
     public void updateRestaurant(String id, String name) {
         String uid = getCurrentUser().getUid();
-        mUserRepository.getUsersCollection().document(uid).update("restaurantId", id);
-        mUserRepository.getUsersCollection().document(uid).update("restaurantName", name);
+        DocumentReference documentReference = mUserRepository.getUsersCollection().document(uid);
+        documentReference.update("restaurantId", id);
+        documentReference.update("restaurantName", name);
     }
 
     public void fetchDetailsRestaurants() {
@@ -129,9 +118,12 @@ public class RestaurantViewModel extends ViewModel {
     }
 
     public void fetchDetailsRestaurant(String id){
-        mRestaurantRepository.getDetailsRestaurant(id, restaurant -> {
-            Log.d(TAG, "fetchDetailRestaurant: ");
-            mDetail.setValue(restaurant);
+        mRestaurantRepository.getDetailsRestaurant(id, new OnDetailsRestaurant() {
+            @Override
+            public void onGetDetailsRestaurantData(Restaurant restaurant) {
+//                Log.d(TAG, "fetchDetailRestaurant: ");
+                mDetail.setValue(restaurant);
+            }
         });
     }
 
@@ -143,7 +135,7 @@ public class RestaurantViewModel extends ViewModel {
             fetchDetailsRestaurants();
             getUsers();
         });
-        Log.d(TAG, "fetchRestaurants: mlocation : " + mLocation);
+//        Log.d(TAG, "fetchRestaurants: mlocation : " + mLocation);
     }
 
     public void setLocation(LatLng location){
