@@ -1,22 +1,20 @@
 package com.ocproject7.go4lunch;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.ocproject7.go4lunch.data.PlacesApi;
-import com.ocproject7.go4lunch.data.RetrofitService;
+import com.ocproject7.go4lunch.data.callback.OnDetailsRestaurant;
 import com.ocproject7.go4lunch.data.callback.OnGetRestaurants;
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
+import com.ocproject7.go4lunch.data.responses.DetailsResponse;
 import com.ocproject7.go4lunch.data.responses.NearbyResponse;
 import com.ocproject7.go4lunch.models.Restaurant;
-import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,9 +25,14 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,22 +48,26 @@ public class RestaurantRepoTest {
     OnGetRestaurants mockedOnGetRestaurants;
 
     @Mock
-    RetrofitService mRetrofitService;
+    OnDetailsRestaurant mockedOnDetailsRestaurants;
 
     @Mock
     Call<NearbyResponse> mNearbyResponseCall;
 
-//    @Mock
-//    Response<NearbyResponse> mNearbyResponse;
+    @Mock
+    Call<DetailsResponse> mDetailsResponseCall;
+
+    @Mock
+    NearbyResponse mNearbyResponse;
+
+    @Mock
+    DetailsResponse mDetailsResponse;
 
     RestaurantRepository restaurantRepository;
 
-//    ArgumentCaptor<OnGetRestaurants> testOnGetRestaurant = ArgumentCaptor.forClass(OnGetRestaurants.class);
     @Captor
-    private ArgumentCaptor<Callback<NearbyResponse>> callbackCaptor;
-//    <T> void setupTask(Task<T> task) {
-//        when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(task);
-//    }
+    private ArgumentCaptor<List<Restaurant>> restaurantsCaptor;
+    @Captor
+    private ArgumentCaptor<Restaurant> restoCaptor;
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -68,51 +75,64 @@ public class RestaurantRepoTest {
     @Before
     public void setUp(){
         MockitoAnnotations.initMocks(this);
-
-        restaurantRepository = new RestaurantRepository();
+        restaurantRepository = new RestaurantRepository(mockedPlaces);
     }
 
     @Test
     public void testGetRestaurants(){
+        List<Restaurant> restoList = Arrays.asList(new Restaurant(), new Restaurant());
 
-        when(mRetrofitService.getPlacesApi()).thenReturn(mockedPlaces);
-//        when(mockedPlaces.getNearBy("Paris", 1500, "restaurant","prominence", "AIzaSyDCXBbnL9Tw5L_0G6MMtr-F7ibrX-oAx40")).thenReturn(mNearbyResponseCall);
-//        when(mockedPlaces.getNearBy(anyString(), anyInt(), anyString(),anyString(), anyString())).thenReturn(mNearbyResponseCall);
-//        verify(mNearbyResponseCall).enqueue(callbackCaptor.capture());
-//        Callback<NearbyResponse> nearbyCallBack = callbackCaptor.getValue();
-//        nearbyCallBack.onResponse(mNearbyResponseCall,);
-
-    }
-
-    /*
-    @Test
-    public void testApiResponse() {
-        ApiInterface mockedApiInterface = Mockito.mock(ApiInterface.class);
-        Call<UserNotifications> mockedCall = Mockito.mock(Call.class);
-
-        when(RetrofitService.getPlacesApi()).thenReturn(mockedPlaces);
-        when(mockedPlaces.getNearBy("Paris", 1500, "restaurant","prominence", "AIzaSyDCXBbnL9Tw5L_0G6MMtr-F7ibrX-oAx40")).thenReturn(mNearbyResponseCall);
-
-
-
-            @Override
-            public void onFailure(Call<NearbyResponse> call, Throwable t) {
-
-            }
+        Response<NearbyResponse> response = Response.success((mNearbyResponse));
+        when(mockedPlaces.getNearBy(anyString(), anyInt(), anyString(), anyString(), anyString())).thenReturn(mNearbyResponseCall);
+        when(mNearbyResponse.getResults()).thenReturn(restoList);
+        Mockito.doAnswer(new Answer() {
 
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                Callback<UserNotifications> callback = invocation.getArgumentAt(0, Callback.class);
+                Callback<NearbyResponse> callback = invocation.getArgument(0, Callback.class);
+                callback.onResponse(mNearbyResponseCall, response);
+                return null;
+            }
+        }).when(mNearbyResponseCall).enqueue(any(Callback.class));
+        restaurantRepository.getRestaurants(
+                "Paris",
+                1500,
+                "prominence",
+                mockedOnGetRestaurants);
 
-                callback.onResponse(mockedCall, Response.success(new UserNotifications()));
-                // or callback.onResponse(mockedCall, Response.error(404. ...);
-                // or callback.onFailure(mockedCall, new IOException());
+        verify(mNearbyResponseCall).enqueue(any());
+        verify(mockedOnGetRestaurants).onGetRestaurantData(restaurantsCaptor.capture());
+        List<Restaurant> restaurantList = restaurantsCaptor.getValue();
+        assertEquals(restaurantList.size(), 2);
+    }
+
+    @Test
+    public void testGetDetailsRestaurant(){
+        Restaurant resto = new Restaurant();
+        resto.setPlaceId("Paris");
+
+        Response<DetailsResponse> response = Response.success((mDetailsResponse));
+        when(mockedPlaces.getDetails(anyString(), anyString())).thenReturn(mDetailsResponseCall);
+
+        when(mDetailsResponse.getResult()).thenReturn(resto);
+
+        Mockito.doAnswer(new Answer() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                Callback<DetailsResponse> callback = invocation.getArgument(0, Callback.class);
+
+                callback.onResponse(mDetailsResponseCall, response);
 
                 return null;
             }
-        }).when(mockedCall).enqueue(any(Callback.class));
+        }).when(mDetailsResponseCall).enqueue(any(Callback.class));
+        restaurantRepository.getDetailsRestaurant("Paris", mockedOnDetailsRestaurants);
 
-        // inject mocked ApiInterface to your presenter
-        // and then mock view and verify calls (and eventually use ArgumentCaptor to access call parameters)
-    }*/
+        verify(mDetailsResponseCall).enqueue(any());
+        verify(mockedOnDetailsRestaurants).onGetDetailsRestaurantData(restoCaptor.capture());
+        Restaurant restaurant = restoCaptor.getValue();
+        assertNotNull(restaurant);
+        assertEquals(restaurant.getPlaceId(), "Paris");
+    }
 }

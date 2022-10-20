@@ -147,47 +147,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
     }
 
-//    public String displayOpeningHourss(OpeningHours openingHours){
-//        if(openingHours == null || openingHours.getPeriods() == null) {
-//            return "No Time available";
-//        }
-//        if(openingHours.getOpenNow() != null && !openingHours.getOpenNow()){
-//            return "closed";
-//        }
-//
-//        Log.d(TAG, "displayOpeningHours: periods size="+openingHours.getPeriods().size());
-//        Log.d(TAG, "displayOpeningHours: current Hour = "+Calendar.getInstance().get(Calendar.HOUR));
-//        Log.d(TAG, "displayOpeningHours: current Min = "+Calendar.getInstance().get(Calendar.MINUTE));
-//        Log.d(TAG, "displayOpeningHours: zone "+Calendar.getInstance().getTimeZone().getDisplayName());
-//
-//
-//        int dayOfTheWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1 ;
-//        Log.d(TAG, "displayOpeningHours: dayOfTheWeek="+dayOfTheWeek);
-//        if(openingHours.getPeriods().size() >= dayOfTheWeek+1){
-//            Period periodOfTheDay = openingHours.getPeriods().get(dayOfTheWeek);
-//
-//            if(periodOfTheDay.getClose() == null) return "open 27/7";
-//
-//            String closureString = periodOfTheDay.getClose().getTime();
-//            int closure = Integer.parseInt(closureString);
-//
-//            Date todayDate = Calendar.getInstance().getTime();
-//            DateFormat dateFormat = new SimpleDateFormat("HHmm");
-//            String todayDateString = dateFormat.format(todayDate);
-//            int timeNow = Integer.parseInt(todayDateString);
-//            int timeBeforeClosure = closure - timeNow;
-//            Log.d(TAG, "displayOpeningHours: timeBeforeClosure = "+timeBeforeClosure);
-//            if(timeBeforeClosure <= 60){
-//                return "closing soon";
-//            } else {
-//                return "open until "+closureString;
-//            }
-//
-//        }
-//        return "no time";
-//
-//    }
-
     public int getCountSubscribers(Restaurant restaurant) {
         int countSubscribers = 0;
         if (mUsers != null) {

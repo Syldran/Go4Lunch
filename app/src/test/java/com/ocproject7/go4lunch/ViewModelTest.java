@@ -8,19 +8,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.OngoingStubbing;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atMostOnce;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,14 +26,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.ActionCodeResult;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -70,48 +56,12 @@ public class ViewModelTest {
 
     private static final String TAG = "TAG_ExampleUnitTest";
 
-    @Mock
-    private FirebaseAuth firebaseAuth;
-
-    @Mock
-    private Task<AuthResult> authResultTask;
-
-    @Mock
-    private Task<SignInMethodQueryResult> providerQueryResultTask;
-
-    @Mock
-    private Task<ActionCodeResult> actionCodeResultTask;
-
-    @Mock
-    private Task<String> checkCodeResultTask;
-
-    @Mock
-    private AuthResult authResult;
-
-    @Mock
-    private SignInMethodQueryResult providerQueryResult;
-
-    @Mock
-    private ActionCodeResult actionCodeResult;
-    
-
-    @Mock
-    private AuthCredential authCredential;
-
-    @Mock
-    private FirebaseUser firebaseUser;
-
-    @Mock
-    private Task<Void> voidTask;
 
     @Mock
     RestaurantRepository restaurantRepository;
 
     @Mock
     UserRepository userRepository;
-
-    @Mock
-    RestaurantViewModel mRestaurantViewModel;
 
     @Mock
     private DocumentSnapshot documentSnapshot;
@@ -136,7 +86,6 @@ public class ViewModelTest {
 
     RestaurantViewModel restaurantViewModel;
 
-    User userTest;
     Restaurant restaurantTest;
 
 
@@ -325,10 +274,6 @@ public class ViewModelTest {
         when(mCollectionReference.document(idUser)).thenReturn(mDocumentReference);
         when(mDocumentReference.update(eq("restaurantId"), anyString())).thenReturn(mVoidTask);
         when(mDocumentReference.update(eq("restaurantName"), anyString())).thenReturn(mVoidTask1);
-//        when(mVoidTask.getResult()).thenReturn()
-//        when(querySnapshotTask.getResult()).thenReturn(mQuerySnapshot);
-//        when(querySnapshotTask.isSuccessful()).thenReturn(true);
-
 
         //when
         restaurantViewModel.updateRestaurant(idResto, nameResto);
@@ -342,54 +287,4 @@ public class ViewModelTest {
 //        assertEquals(idResto, restaurantViewModel.currentUser.getValue().getRestaurantId());
 //        assertEquals(nameResto, restaurantViewModel.currentUser.getValue().getRestaurantName());
     }
-
-    //
-
-//
-//    @Test
-//    public void addition_isCorrect() {
-//        assertEquals(4, 2 + 2);
-//    }
-
-
-    // ------ USER REPO ------
-
-
-/*
-    @Test
-    public void testRepoGetCurrentUserSuccess(){
-        // given
-        Context context = mock(Context.class);
-        FirebaseApp.initializeApp(context);
-//        FirebaseAuth firebaseAuth = mock(FirebaseAuth.class);
-//        FirebaseUser firebaseUser = mock(FirebaseUser.class);
-        when(firebaseAuth.getCurrentUser()).thenReturn(firebaseUser);
-
-        when(FirebaseAuth.getInstance()).thenReturn(firebaseAuth);
-        when(firebaseAuth.getCurrentUser()).thenReturn(firebaseUser);
-
-
-        // when
-        FirebaseUser firebaseUser1 = userRepository.getCurrentUser();
-
-        // then
-        assertNotNull(firebaseUser1);
-        assertEquals(firebaseUser, firebaseUser1);
-
-    }
-
-    @Test
-    public void testRepoGetCurrentUserFailure(){
-        // given
-
-        FirebaseAuth firebaseAuth = mock(FirebaseAuth.class);
-        when(FirebaseAuth.getInstance()).thenReturn(firebaseAuth);
-        when(firebaseAuth.getCurrentUser()).thenReturn(null);
-
-        // when
-        FirebaseUser firebaseUser1 = userRepository.getCurrentUser();
-
-        // then
-        assertNull(firebaseUser1);
-    }*/
 }

@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -87,12 +86,8 @@ public class NavigationActivity extends AppCompatActivity {
         if (sharedpreferences.getString(RANKBY, null) == null) {
             sharedpreferences.edit().putString(RANKBY, "prominence").apply();
         }
-
         rankBy = sharedpreferences.getString(RANKBY, "prominence");
-//        Log.d(TAG, "onCreate: rankby " + rankBy);
         radius = sharedpreferences.getInt(RADIUS, 1500);
-//        Log.d(TAG, "onCreate: radius " + radius);
-
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.GOOGLE_API_KEY);
         }
@@ -100,7 +95,6 @@ public class NavigationActivity extends AppCompatActivity {
         initNavigation();
         initViewModel();
         mRestaurantViewModel.currentUser.observe(this, user -> {
-            Log.d(TAG, "onCreate: currentUser Observed");
             if (user != null) {
                 isSubscribed = user.getRestaurantId() != null;
             } else {
@@ -119,17 +113,7 @@ public class NavigationActivity extends AppCompatActivity {
             mRestaurantViewModel.updateUserFromFirestore(mRestaurantViewModel.getCurrentUser().getUid());
             initDrawerUi();
             FirebaseUser currentUser = mRestaurantViewModel.getCurrentUser();
-//
-//            String message = "";
-//            if (isSubscribed) {
-//                message = getString(R.string.eat_at) + mRestaurantViewModel.currentUser.getValue().getRestaurantName();
-//                notifyGo4Lunch(message, getApplicationContext(), true);
-//            } else {
-//                notifyGo4Lunch(message, getApplicationContext(), false);
-//            }
-//            mRestaurantViewModel.getUsers();
         } else {
-//            Log.d(TAG, "onCreate: is not logged");
             startSignInActivity();
         }
 
@@ -224,17 +208,9 @@ public class NavigationActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
-//            Log.d(TAG, "onActivityResult: resultCode " + result.getResultCode());
             rankBy = sharedpreferences.getString(RANKBY, "prominence");
-//            Log.d(TAG, "onCreate: rankby " + rankBy);
             radius = sharedpreferences.getInt(RADIUS, 1500);
-//            Log.d(TAG, "onCreate: radius " + radius);
-
             mRestaurantViewModel.fetchRestaurants(radius, rankBy);
-
-            if (result.getResultCode() == Activity.RESULT_OK) {
-//                Log.d(TAG, "onActivityResult: HERE");
-            }
         }
     });
 
@@ -246,19 +222,6 @@ public class NavigationActivity extends AppCompatActivity {
             FirebaseUser currentUser = mRestaurantViewModel.getCurrentUser();
             checkFirestoreData(currentUser.getUid());
             initDrawerUi();
-//            User user = mRestaurantViewModel.currentUser.getValue();
-//            if (user != null) {
-//                isSubscribed = user.getRestaurantId() != null;
-//            } else {
-//                isSubscribed = false;
-//            }
-//            String message = "";
-//            if (isSubscribed) {
-//                message = getString(R.string.eat_at) + user.getRestaurantName();
-//                notifyGo4Lunch(message, getApplicationContext(), true);
-//            } else {
-//                notifyGo4Lunch(message, getApplicationContext(), false);
-//            }
 
             Toast.makeText(this, "Connection Succeeded", Toast.LENGTH_SHORT).show();
         } else {
@@ -277,14 +240,10 @@ public class NavigationActivity extends AppCompatActivity {
 
 
     private void checkFirestoreData(String id) {
-        Log.d(TAG, "checkFirestoreData: "+mRestaurantViewModel.currentUser.getValue());
         if (mRestaurantViewModel.currentUser.getValue() == null) {
-                Log.d(TAG,  " current user not in firestore ");
             mRestaurantViewModel.createUser();
             mRestaurantViewModel.getUsers();
             mRestaurantViewModel.updateUserFromFirestore(id);
-        } else {
-//                Log.d(TAG, "handleResponseAfterSignIn: user is in firestore : " + mRestaurantViewModel.getUser(mRestaurantViewModel.getCurrentUser().getUid()));
         }
     }
 
@@ -367,13 +326,11 @@ public class NavigationActivity extends AppCompatActivity {
             Intent data = result.getData();
             if (result.getResultCode() == Activity.RESULT_OK) {
                 Place mPlace = Autocomplete.getPlaceFromIntent(data);
-                Log.i(TAG, "Place: " + mPlace.getName() + ", " + mPlace.getId());
                 mRestaurantViewModel.setCurrentPosName(mPlace.getName());
                 mRestaurantViewModel.setLocation(mPlace.getLatLng());
                 mRestaurantViewModel.fetchRestaurants(radius, rankBy);
             } else if (result.getResultCode() == com.google.android.libraries.places.widget.AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i(TAG, status.getStatusMessage());
             } else if (result.getResultCode() == RESULT_CANCELED) {
                 // The user canceled the operation.
             }

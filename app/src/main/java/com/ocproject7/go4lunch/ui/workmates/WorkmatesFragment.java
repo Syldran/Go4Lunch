@@ -2,7 +2,6 @@ package com.ocproject7.go4lunch.ui.workmates;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,6 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_workmates, container, false);
-        Log.d(TAG, "onCreateView: ");
 
         configRecyclerView(view);
         initData();
@@ -57,7 +55,6 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
 
         mViewModel.mDetail.observe(getViewLifecycleOwner(), restaurant -> {
             if (restaurant != null) {
-                Log.d(TAG, "initData: restaurant " + restaurant.getName());
                 Intent intent = new Intent(getActivity(), DetailsRestaurantActivity.class);
                 intent.putExtra("DETAILS", restaurant);
                 detailsLauncher.launch(intent);
@@ -84,7 +81,6 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
         public void onActivityResult(ActivityResult result) {
             mViewModel.getUsers();
             mViewModel.updateUserFromFirestore(mViewModel.getCurrentUser().getUid());
-            Log.d(TAG, "onActivityResult: workmate");
         }
     });
 }

@@ -5,16 +5,13 @@ import static com.ocproject7.go4lunch.ui.SettingsActivity.RADIUS;
 import static com.ocproject7.go4lunch.ui.SettingsActivity.RANKBY;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +20,6 @@ import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -116,7 +111,6 @@ public class MapFragment extends Fragment implements EasyPermissions.PermissionC
             if (hasLocationPermission()){
                 getCurrentLocation();
                 enableMyLocation();
-                Log.d(TAG, "onMapReady: has permision");
             } else {
                 requestLocationPermission();
             }
@@ -134,7 +128,6 @@ public class MapFragment extends Fragment implements EasyPermissions.PermissionC
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-//        Log.d(TAG, "onViewCreated: ");
         super.onViewCreated(view, savedInstanceState);
         mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
         sharedPreferences = getActivity().getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
@@ -144,7 +137,6 @@ public class MapFragment extends Fragment implements EasyPermissions.PermissionC
     }
 
     public void initMap() {
-//        Log.d(TAG, "initMap: ");
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
@@ -156,12 +148,10 @@ public class MapFragment extends Fragment implements EasyPermissions.PermissionC
     }
 
     private void moveCamera(LatLng latLng, float zoom) {
-//        Log.d(TAG, "moveCamera: to lat : " + latLng.latitude + " & lng " + latLng.longitude);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
     private void getCurrentLocation() {
-//        Log.d(TAG, "getCurrentLocation: ");
         client = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
 
@@ -188,7 +178,6 @@ public class MapFragment extends Fragment implements EasyPermissions.PermissionC
             });
 
         } catch (SecurityException e) {
-//            Log.e(TAG, "getCurrentLocation: Security Exception " + e.getMessage());
         }
     }
 

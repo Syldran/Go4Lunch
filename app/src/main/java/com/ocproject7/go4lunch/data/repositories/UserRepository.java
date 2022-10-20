@@ -5,14 +5,11 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.MutableLiveData;
-
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ocproject7.go4lunch.models.User;
@@ -52,8 +49,7 @@ public class UserRepository extends AppCompatActivity {
     }
 
     // Create User in Firestore
-    public void createUser() { //passer en paramètre un FirebaseUser
-        FirebaseUser user = getCurrentUser();
+    public void createUser(FirebaseUser user, CollectionReference collectionReference) {
         if (user != null) {
             String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
             String username = user.getDisplayName();
@@ -62,41 +58,13 @@ public class UserRepository extends AppCompatActivity {
 
             User userToCreate = new User(uid, username, mail, urlPicture, null, null);
 
-            getUsersCollection().document(uid).set(userToCreate);
+            collectionReference.document(uid).set(userToCreate);
         }
     }
-
-    /*
-    // Create User in Firestore
-    public void createUser(FirebaseUser user) {
-        if (user != null) {
-            String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
-            String username = user.getDisplayName();
-            String uid = user.getUid();
-            String mail = user.getEmail();
-
-            User userToCreate = new User(uid, username, mail, urlPicture, null, null);
-
-            getUsersCollection().document(uid).set(userToCreate);
-        }
-    }
-*/
-
 
     public Task<DocumentSnapshot> getUserData(String uid) {
         if (uid != null) {
             return this.getUsersCollection().document(uid).get();
-        } else {
-            return null;
-        }
-    }
-
-
-    // Update User Username
-    public Task<Void> updateUsername(String username) {
-        String uid = this.getCurrentUser().getUid();
-        if (uid != null) {
-            return this.getUsersCollection().document(uid).update("username", username);
         } else {
             return null;
         }

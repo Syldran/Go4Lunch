@@ -50,7 +50,6 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
     }
 
     public void configRecyclerView(View view) {
-        Log.d(TAG, "configRecyclerView: ");
         // Set the adapter
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -64,9 +63,6 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list_restaurant, container, false);
-        Log.d(TAG, "onCreateView: ");
-
-
         configRecyclerView(view);
         initData();
         return view;
@@ -84,7 +80,6 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
         public void onActivityResult(ActivityResult result) {
             mViewModel.getUsers();
             mViewModel.updateUserFromFirestore(mViewModel.getCurrentUser().getUid());
-            Log.d(TAG, "onActivityResult: list");
         }
     });
 }

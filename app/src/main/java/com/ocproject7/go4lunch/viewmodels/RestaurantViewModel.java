@@ -1,7 +1,6 @@
 package com.ocproject7.go4lunch.viewmodels;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
@@ -14,7 +13,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.ocproject7.go4lunch.data.callback.OnDetailsRestaurant;
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
@@ -45,8 +43,7 @@ public class RestaurantViewModel extends ViewModel {
     // __________ USER __________
 
     public void createUser() {
-        Log.d(TAG, "createUser: ");
-        mUserRepository.createUser();
+        mUserRepository.createUser(getCurrentUser(), mUserRepository.getUsersCollection());
     }
 
     public FirebaseUser getCurrentUser() {
@@ -80,14 +77,12 @@ public class RestaurantViewModel extends ViewModel {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-//                            for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()){
                             for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
                                 User user = documentSnapshot.toObject(User.class);
                                 users.add(user);
                             }
                             allUsers.setValue(users);
                         } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -121,21 +116,18 @@ public class RestaurantViewModel extends ViewModel {
         mRestaurantRepository.getDetailsRestaurant(id, new OnDetailsRestaurant() {
             @Override
             public void onGetDetailsRestaurantData(Restaurant restaurant) {
-//                Log.d(TAG, "fetchDetailRestaurant: ");
                 mDetail.setValue(restaurant);
             }
         });
     }
 
     public void fetchRestaurants(int radius, String rankBy) {
-//        Log.d(TAG, "fetchRestaurants: ");
         String sLocation = mLocation.latitude + "," + mLocation.longitude;
         mRestaurantRepository.getRestaurants(sLocation, radius, rankBy, restaurants -> {
             mRestaurants.setValue(restaurants);
             fetchDetailsRestaurants();
             getUsers();
         });
-//        Log.d(TAG, "fetchRestaurants: mlocation : " + mLocation);
     }
 
     public void setLocation(LatLng location){

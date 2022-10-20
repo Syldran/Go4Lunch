@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.ocproject7.go4lunch.data.RetrofitService;
 import com.ocproject7.go4lunch.data.repositories.RestaurantRepository;
 import com.ocproject7.go4lunch.data.repositories.UserRepository;
 
@@ -22,7 +23,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         return factory;
     }
 
-    private final RestaurantRepository mRestaurantRepository = new RestaurantRepository();
+    private final RestaurantRepository mRestaurantRepository = new RestaurantRepository(RetrofitService.getInstance().getPlacesApi());
     private final UserRepository mUserRepository = UserRepository.getInstance();
 
     @NonNull

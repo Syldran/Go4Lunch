@@ -6,13 +6,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.ocproject7.go4lunch.ui.ReminderNotification;
-import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
 
 import java.util.Calendar;
 
@@ -37,13 +35,11 @@ public abstract class Utils {
         calendar.set(Calendar.MILLISECOND, 0);
 
         if (!isActive) {
-            Log.d(TAG, "notifyGo4Lunch: notif désactivé");
             alarmManager.cancel(pendingIntent);
         } else {
             if (calendar.before(Calendar.getInstance())) {
                 calendar.add(Calendar.DATE, 1);
             }
-            Log.d(TAG, "notifyGo4Lunch: notif activé");
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
         }
     }
