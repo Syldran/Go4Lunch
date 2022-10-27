@@ -95,7 +95,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void fragmentOnButton(){
-        onView(ViewMatchers.withId(R.id.bottom_map).perform(click()));
+      //  onView(ViewMatchers.withId(R.id.bottom_map).perform(click()));
         //onView(ViewMatchers.withId(R.id.nav_host_fragment_content_main).matches())
     }
 
