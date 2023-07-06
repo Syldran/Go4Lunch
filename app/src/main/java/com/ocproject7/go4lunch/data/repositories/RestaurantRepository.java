@@ -1,5 +1,7 @@
 package com.ocproject7.go4lunch.data.repositories;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.ocproject7.go4lunch.BuildConfig;
@@ -12,6 +14,7 @@ import com.ocproject7.go4lunch.data.responses.NearbyResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 public class RestaurantRepository {
 
     private static String TAG = "TAG_RestaurantRepository";
@@ -33,6 +36,25 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(Call<NearbyResponse> call, Throwable t) {
+                Log.e(TAG, "onFailure: ", t);
+            }
+
+        });
+    }
+
+    public void getRestaurants(String location, String rankBy, OnGetRestaurants onGetRestaurantsCallBack) {
+        placesApi.getNearBy(location, "restaurant", rankBy, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<NearbyResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<NearbyResponse> call, @NonNull Response<NearbyResponse> response) {
+                if (response.code() == 200 && response.body() != null) {
+                    onGetRestaurantsCallBack.onGetRestaurantData(response.body().getResults());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<NearbyResponse> call, Throwable t) {
+                Log.e(TAG, "onFailure: ", t);
             }
 
         });
@@ -49,7 +71,7 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(Call<DetailsResponse> call, Throwable t) {
-
+                Log.e(TAG, "onFailure: ", t);
             }
         });
     }

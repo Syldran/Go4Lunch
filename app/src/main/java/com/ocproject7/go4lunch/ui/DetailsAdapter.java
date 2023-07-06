@@ -38,7 +38,7 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHold
             holder.mBinding.ivSubscribedPicture.setImageResource(R.drawable.baseline_account_circle_24);
         }
 
-        holder.mBinding.tvSubscriber.setText(new StringBuilder().append(user.getUsername()).append(holder.itemView.getContext().getString(R.string.details_joining)).toString());
+        holder.mBinding.tvSubscriber.setText(user.getUsername() + holder.itemView.getContext().getString(R.string.details_joining));
     }
 
     @Override

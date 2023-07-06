@@ -1,15 +1,10 @@
 package com.ocproject7.go4lunch;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,6 +34,15 @@ import com.ocproject7.go4lunch.data.repositories.UserRepository;
 import com.ocproject7.go4lunch.models.Restaurant;
 import com.ocproject7.go4lunch.models.User;
 import com.ocproject7.go4lunch.viewmodels.RestaurantViewModel;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,30 +97,28 @@ public class ViewModelTest {
     ArgumentCaptor<OnSuccessListener> testOnSuccessListener = ArgumentCaptor.forClass(OnSuccessListener.class);
     ArgumentCaptor<OnFailureListener> testOnFailureListener = ArgumentCaptor.forClass(OnFailureListener.class);
     ArgumentCaptor<EventListener<DocumentSnapshot>> eventSnapshotListener = ArgumentCaptor.forClass(EventListener.class);
-    //    ArgumentCaptor<EventListener<CollectionReference>> eventCollectionListener = ArgumentCaptor.forClass(EventListener.class);
+
     <T> void setupTask(Task<T> task) {
         when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(task);
         when(task.addOnSuccessListener(testOnSuccessListener.capture())).thenReturn(task);
-//        when(task.addOnFailureListener(testOnFailureListener.capture())).thenReturn(task);
     }
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     @Before
-    public void setUp(){
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         restaurantViewModel = new RestaurantViewModel(restaurantRepository, userRepository);
         setupTask(documentSnapshotTask);
         setupTask(querySnapshotTask);
 
-
         restaurantTest = new Restaurant();
     }
 
     @Test
-    public void testCurrentUserLoggedFailWhenFirebaseUserDoesNotExist(){
+    public void testCurrentUserLoggedFailWhenFirebaseUserDoesNotExist() {
         // Given
         when(userRepository.getCurrentUser()).thenReturn(null);
 
@@ -128,7 +130,7 @@ public class ViewModelTest {
     }
 
     @Test
-    public void testCurrentUserLoggedSucceedWhenFirebaseUserExist(){
+    public void testCurrentUserLoggedSucceedWhenFirebaseUserExist() {
         // Given
         FirebaseUser firebaseUser = mock(FirebaseUser.class);
         when(userRepository.getCurrentUser()).thenReturn(firebaseUser);
@@ -141,7 +143,7 @@ public class ViewModelTest {
     }
 
     @Test
-    public void testGetUserData(){
+    public void testGetUserData() {
         // Given
         String uid = "ChIJHdAimNiV-kcRIXqC5dQDU5w";
         when(userRepository.getUserData(uid)).thenReturn(documentSnapshotTask);
@@ -207,7 +209,7 @@ public class ViewModelTest {
     }
 
     @Test
-    public void testFetchNearByRestaurants(){
+    public void testFetchNearByRestaurants() {
         //given
         Restaurant restaurantTest1 = new Restaurant();
         restaurantTest.setPlaceId("ChIJHdAimNiV-kcRIXqC5dQDU5w");
@@ -233,7 +235,7 @@ public class ViewModelTest {
     }
 
     @Test
-    public void testGetCurrentUser(){
+    public void testGetCurrentUser() {
         FirebaseUser testFirebaseUser = mock(FirebaseUser.class);
         when(userRepository.getCurrentUser()).thenReturn(testFirebaseUser);
 
@@ -245,7 +247,7 @@ public class ViewModelTest {
     }
 
     @Test
-    public void testSignout(){
+    public void testSignout() {
         Context context = mock(Context.class);
         restaurantViewModel.currentUser.setValue(new User());
         assertNotNull(restaurantViewModel.currentUser.getValue());
@@ -277,14 +279,10 @@ public class ViewModelTest {
 
         //when
         restaurantViewModel.updateRestaurant(idResto, nameResto);
-        verify(mDocumentReference, times(1)).update("restaurantId", anyString());
-        verify(mDocumentReference, times(1)).update("restaurantName", anyString());
-//        verify(userRepository).getUsersCollection().document(idUser).update(anyString(), nameResto);
-
 
         //then
+        verify(mDocumentReference, times(1)).update(eq("restaurantId"), anyString());
+        verify(mDocumentReference, times(1)).update(eq("restaurantName"), anyString());
 
-//        assertEquals(idResto, restaurantViewModel.currentUser.getValue().getRestaurantId());
-//        assertEquals(nameResto, restaurantViewModel.currentUser.getValue().getRestaurantName());
     }
 }

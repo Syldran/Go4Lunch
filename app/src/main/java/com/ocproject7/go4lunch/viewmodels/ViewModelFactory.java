@@ -24,7 +24,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     }
 
     private final RestaurantRepository mRestaurantRepository = new RestaurantRepository(RetrofitService.getInstance().getPlacesApi());
-    private final UserRepository mUserRepository = UserRepository.getInstance();
+    private final UserRepository mUserRepository = new UserRepository();
 
     @NonNull
     @Override

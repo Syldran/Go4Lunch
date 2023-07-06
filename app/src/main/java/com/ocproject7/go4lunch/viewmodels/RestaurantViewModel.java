@@ -26,19 +26,20 @@ import java.util.Objects;
 
 public class RestaurantViewModel extends ViewModel {
 
-    private static String TAG = "TAG_RestaurantListViewModel";
+    private static final String TAG = "TAG_RestaurantListViewModel";
 
     public MutableLiveData<List<Restaurant>> mRestaurants;
     public MutableLiveData<List<Restaurant>> mDetails;
     public List<Restaurant> mDetailsRestaurants;
     public MutableLiveData<Restaurant> mRestaurant;
-    private RestaurantRepository mRestaurantRepository;
-    private UserRepository mUserRepository;
+    private final RestaurantRepository mRestaurantRepository;
+    private final UserRepository mUserRepository;
     public MutableLiveData<Restaurant> mDetail;
     public LatLng mLocation;
     public String mName;
     public MutableLiveData<List<User>> allUsers;
     public MutableLiveData<User> currentUser;
+    public MutableLiveData<Boolean> networkError; //tester les erreurs avec null
 
     // __________ USER __________
 
@@ -59,7 +60,7 @@ public class RestaurantViewModel extends ViewModel {
         return mUserRepository.signOut(context);
     }
 
-    public void updateUserFromFirestore(String id){
+    public void updateUserFromFirestore(String id) {
         mUserRepository.getUserData(id).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -89,7 +90,6 @@ public class RestaurantViewModel extends ViewModel {
     }
 
 
-
     // ________ RESTAURANT ________
 
     // Update Chosen Restaurant
@@ -112,7 +112,8 @@ public class RestaurantViewModel extends ViewModel {
         }
     }
 
-    public void fetchDetailsRestaurant(String id){
+    public void fetchDetailsRestaurant(String id) {
+        if (id == null) return;
         mRestaurantRepository.getDetailsRestaurant(id, new OnDetailsRestaurant() {
             @Override
             public void onGetDetailsRestaurantData(Restaurant restaurant) {
@@ -123,18 +124,26 @@ public class RestaurantViewModel extends ViewModel {
 
     public void fetchRestaurants(int radius, String rankBy) {
         String sLocation = mLocation.latitude + "," + mLocation.longitude;
-        mRestaurantRepository.getRestaurants(sLocation, radius, rankBy, restaurants -> {
-            mRestaurants.setValue(restaurants);
-            fetchDetailsRestaurants();
-            getUsers();
-        });
+        if (rankBy.equals("distance")) {
+            mRestaurantRepository.getRestaurants(sLocation, rankBy, restaurants -> {
+                mRestaurants.setValue(restaurants);
+                fetchDetailsRestaurants();
+                getUsers();
+            });
+        } else if (rankBy.equals("prominence")) {
+            mRestaurantRepository.getRestaurants(sLocation, radius, rankBy, restaurants -> {
+                mRestaurants.setValue(restaurants);
+                fetchDetailsRestaurants();
+                getUsers();
+            });
+        }
     }
 
-    public void setLocation(LatLng location){
+    public void setLocation(LatLng location) {
         mLocation = location;
     }
 
-    public void setCurrentPosName(String name){
+    public void setCurrentPosName(String name) {
         mName = name;
     }
 
@@ -148,7 +157,7 @@ public class RestaurantViewModel extends ViewModel {
         allUsers = new MutableLiveData<>();
         mName = null;
         mDetail = new MutableLiveData<>();
-        mLocation = new LatLng(48.856614,2.3522219);
+        mLocation = new LatLng(48.856614, 2.3522219);
         currentUser = new MutableLiveData<>();
     }
 }

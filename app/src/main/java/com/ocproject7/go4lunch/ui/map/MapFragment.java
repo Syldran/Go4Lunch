@@ -50,7 +50,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class MapFragment extends Fragment implements EasyPermissions.PermissionCallbacks {
 
-    private static String TAG = "TAG_MapFragment";
+    private static final String TAG = "TAG_MapFragment";
     private static final float DEFAULT_ZOOM = 15f;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 101;
 
@@ -67,7 +67,7 @@ public class MapFragment extends Fragment implements EasyPermissions.PermissionC
 
     SharedPreferences sharedPreferences;
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
          * Manipulates the map once available.
@@ -103,12 +103,10 @@ public class MapFragment extends Fragment implements EasyPermissions.PermissionC
 
             mViewModel.mRestaurants.observe(requireActivity(), restaurants -> {
                 addMarkers(restaurants);
-
             });
 
 
-
-            if (hasLocationPermission()){
+            if (hasLocationPermission()) {
                 getCurrentLocation();
                 enableMyLocation();
             } else {

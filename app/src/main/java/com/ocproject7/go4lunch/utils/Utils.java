@@ -15,8 +15,6 @@ import com.ocproject7.go4lunch.ui.ReminderNotification;
 import java.util.Calendar;
 
 public abstract class Utils {
-    private static final String TAG = "TAG_Utils";
-
 
     public static void loadImage(Context context, String url, ImageView view) {
         Glide.with(context).load(url).apply(RequestOptions.centerCropTransform()).into(view);

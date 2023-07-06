@@ -17,6 +17,14 @@ public interface PlacesApi {
             @Query("key") String key
     );
 
+    @GET("nearbysearch/json")
+    Call<NearbyResponse> getNearBy(
+            @Query("location") String location,
+            @Query("type") String type,
+            @Query("rankby") String rankby,
+            @Query("key") String key
+    );
+
     @GET("details/json")
     Call<DetailsResponse> getDetails(
             @Query("place_id") String id,

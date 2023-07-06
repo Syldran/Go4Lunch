@@ -29,7 +29,7 @@ import java.util.Objects;
 
 public class DetailsRestaurantActivity extends AppCompatActivity {
     private RestaurantViewModel mRestaurantViewModel;
-    private static String TAG = "TAG_DetailsRestaurantActivity";
+    private static final String TAG = "TAG_DetailsRestaurantActivity";
     private Restaurant mRestaurant;
     private boolean isSubscribed;
     private final List<User> mSubscribers = new ArrayList<>();
@@ -142,7 +142,7 @@ public class DetailsRestaurantActivity extends AppCompatActivity {
     }
 
     private void configRecyclerView() {
-        RecyclerView recyclerView = binding.recyclerView;
+        RecyclerView recyclerView = binding.listRecyclerView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new DetailsAdapter(new ArrayList<>());

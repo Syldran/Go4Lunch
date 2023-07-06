@@ -70,8 +70,7 @@ public class NavigationActivity extends AppCompatActivity {
     private String rankBy;
     private boolean isSubscribed;
 
-    private static String TAG = "TAG_NavigationActivity";
-
+    private static final String TAG = "TAG_NavigationActivity";
     SharedPreferences sharedpreferences;
 
 
@@ -81,19 +80,20 @@ public class NavigationActivity extends AppCompatActivity {
         binding = ActivityNavigationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         createNotificationChannel();
-
+        //set up variables
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        if (sharedpreferences.getString(RANKBY, null) == null) {
-            sharedpreferences.edit().putString(RANKBY, "prominence").apply();
-        }
         rankBy = sharedpreferences.getString(RANKBY, "prominence");
         radius = sharedpreferences.getInt(RADIUS, 1500);
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.GOOGLE_API_KEY);
         }
+
+        //init interface
         initToolbar();
         initNavigation();
         initViewModel();
+
+        // maj subscribed restaurant & activate notifications
         mRestaurantViewModel.currentUser.observe(this, user -> {
             if (user != null) {
                 isSubscribed = user.getRestaurantId() != null;
@@ -109,6 +109,8 @@ public class NavigationActivity extends AppCompatActivity {
             }
             mRestaurantViewModel.getUsers();
         });
+
+        //check if user logged for displaying log in screen
         if (mRestaurantViewModel.isCurrentUserLogged()) {
             mRestaurantViewModel.updateUserFromFirestore(mRestaurantViewModel.getCurrentUser().getUid());
             initDrawerUi();
@@ -303,19 +305,13 @@ public class NavigationActivity extends AppCompatActivity {
         // Set the fields to specify which types of place data to
         // return after the user has made a selection.
         int menuId = item.getItemId();
-        switch (menuId) {
-            case R.id.action_search: {
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+        if (menuId == R.id.action_search) {
+            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-                // Start autocomplete intent.
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                        .build(this);
-                autocompleteLaunch.launch(intent);
-                break;
-            }
-            default:
-                break;
-
+            // Start autocomplete intent.
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                    .build(this);
+            autocompleteLaunch.launch(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -328,6 +324,7 @@ public class NavigationActivity extends AppCompatActivity {
                 Place mPlace = Autocomplete.getPlaceFromIntent(data);
                 mRestaurantViewModel.setCurrentPosName(mPlace.getName());
                 mRestaurantViewModel.setLocation(mPlace.getLatLng());
+
                 mRestaurantViewModel.fetchRestaurants(radius, rankBy);
             } else if (result.getResultCode() == com.google.android.libraries.places.widget.AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);

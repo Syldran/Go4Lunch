@@ -2,10 +2,11 @@ package com.ocproject7.go4lunch.data;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 public class RetrofitService {
 
     private static RetrofitService retrofitService;
-    private PlacesApi mPlacesApi;
+    private final PlacesApi mPlacesApi;
 
     private RetrofitService() {
         Retrofit retrofit = new Retrofit.Builder()

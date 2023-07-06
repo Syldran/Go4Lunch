@@ -2,6 +2,7 @@ package com.ocproject7.go4lunch.ui.list;
 
 import static com.ocproject7.go4lunch.utils.Utils.loadImage;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -16,7 +17,6 @@ import com.ocproject7.go4lunch.data.entities.Period;
 import com.ocproject7.go4lunch.databinding.ListItemBinding;
 import com.ocproject7.go4lunch.models.Restaurant;
 import com.ocproject7.go4lunch.models.User;
-import com.ocproject7.go4lunch.ui.DetailsRestaurantActivity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,7 +33,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private LatLng mLocation;
     private List<User> mUsers;
 
-    private static final String TAG = "TAG_RecyclerViewAdapter";
 
     public RecyclerViewAdapter(List<Restaurant> restaurants, OnRestaurantListener onRestaurantListener) {
         mRestaurants = restaurants;
@@ -112,7 +111,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     if (timeBeforeClosure <= 100) {
                         return holder.itemView.getContext().getString(R.string.list_adapter_closing_soon);
                     } else {
-                        return holder.itemView.getContext().getString(R.string.list_adapter_open_until) + formattedTime(period, true);
+                        return holder.itemView.getContext().getString(R.string.list_adapter_open_until) + formattedTime(period, true, holder.itemView.getContext());
                     }
                 }
             } else { // closure is next day
@@ -130,20 +129,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     if (timeBeforeClosure <= 100) {
                         return holder.itemView.getContext().getString(R.string.list_adapter_closing_soon);
                     } else {
-                        return holder.itemView.getContext().getString(R.string.list_adapter_open_until) + formattedTime(period, afterMidnight);
+                        return holder.itemView.getContext().getString(R.string.list_adapter_open_until) + formattedTime(period, afterMidnight, holder.itemView.getContext());
                     }
                 }
             }
         }
-        return "Unknown";
+        return holder.itemView.getContext().getString(R.string.list_adapter_unspecified_opening_hours);
     }
 
-    public String formattedTime(Period period, boolean bool) {
+    public String formattedTime(Period period, boolean bool, Context context) {
         String timeClosure = period.getClose().getTime();
         if (bool) {
             return "" + timeClosure.charAt(0) + timeClosure.charAt(1) + "h" + timeClosure.charAt(2) + timeClosure.charAt(3);
         } else {
-            return String.format("%s%sh%s%s%s", timeClosure.charAt(0), timeClosure.charAt(1), timeClosure.charAt(2), timeClosure.charAt(3), " tomorrow");
+            return String.format("%s%sh%s%s %s", timeClosure.charAt(0), timeClosure.charAt(1), timeClosure.charAt(2), timeClosure.charAt(3), context.getString(R.string.tomorrow));
         }
     }
 

@@ -2,7 +2,6 @@ package com.ocproject7.go4lunch.ui.list;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +31,6 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
     RestaurantViewModel mViewModel;
     private RecyclerViewAdapter adapter;
 
-    private static String TAG = "TAG_ListRestaurantFragment";
-
 
     private void initData() {
         mViewModel = new ViewModelProvider(requireActivity(), ViewModelFactory.getInstance()).get(RestaurantViewModel.class);
@@ -51,7 +48,7 @@ public class ListRestaurantFragment extends Fragment implements RecyclerViewAdap
 
     public void configRecyclerView(View view) {
         // Set the adapter
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new RecyclerViewAdapter(new ArrayList<>(), this);

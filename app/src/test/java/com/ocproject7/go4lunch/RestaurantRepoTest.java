@@ -1,5 +1,7 @@
 package com.ocproject7.go4lunch;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -28,8 +30,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -73,13 +73,13 @@ public class RestaurantRepoTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     @Before
-    public void setUp(){
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         restaurantRepository = new RestaurantRepository(mockedPlaces);
     }
 
     @Test
-    public void testGetRestaurants(){
+    public void testGetRestaurants() {
         List<Restaurant> restoList = Arrays.asList(new Restaurant(), new Restaurant());
 
         Response<NearbyResponse> response = Response.success((mNearbyResponse));
@@ -106,8 +106,9 @@ public class RestaurantRepoTest {
         assertEquals(restaurantList.size(), 2);
     }
 
+
     @Test
-    public void testGetDetailsRestaurant(){
+    public void testGetDetailsRestaurant() {
         Restaurant resto = new Restaurant();
         resto.setPlaceId("Paris");
 
