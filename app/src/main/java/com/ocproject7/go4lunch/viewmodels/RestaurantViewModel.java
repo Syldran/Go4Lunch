@@ -26,8 +26,6 @@ import java.util.Objects;
 
 public class RestaurantViewModel extends ViewModel {
 
-    private static final String TAG = "TAG_RestaurantListViewModel";
-
     public MutableLiveData<List<Restaurant>> mRestaurants;
     public MutableLiveData<List<Restaurant>> mDetails;
     public List<Restaurant> mDetailsRestaurants;

@@ -2,7 +2,7 @@
     <string name="app_name" translatable="false">Go4Lunch</string>
 
     <!-- -->
-    <string name="GOOGLE_API_KEY" translatable="false">AIzaSyDCXBbnL9Tw5L_0G6MMtr-F7ibrX-oAx40</string>
+
 
     <!-- Facebook API key -->
     <string name="facebook_application_id" translatable="false">3154812581513075</string>
