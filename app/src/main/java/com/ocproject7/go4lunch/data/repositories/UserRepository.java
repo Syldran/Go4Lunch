@@ -17,8 +17,6 @@ import com.ocproject7.go4lunch.models.User;
 
 public class UserRepository extends AppCompatActivity {
     private static volatile UserRepository instance;
-    private static final String TAG = "TAG_UserRepository";
-
 
     @Nullable
     public FirebaseUser getCurrentUser() {

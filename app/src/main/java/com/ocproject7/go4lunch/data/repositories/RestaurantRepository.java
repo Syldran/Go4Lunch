@@ -1,7 +1,5 @@
 package com.ocproject7.go4lunch.data.repositories;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.ocproject7.go4lunch.BuildConfig;
@@ -16,8 +14,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RestaurantRepository {
-
-    private static String TAG = "TAG_RestaurantRepository";
     private PlacesApi placesApi;
 
     public RestaurantRepository(PlacesApi placesApi) {
@@ -36,7 +32,6 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(Call<NearbyResponse> call, Throwable t) {
-                Log.e(TAG, "onFailure: ", t);
             }
 
         });
@@ -54,7 +49,6 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(Call<NearbyResponse> call, Throwable t) {
-                Log.e(TAG, "onFailure: ", t);
             }
 
         });
@@ -71,7 +65,6 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(Call<DetailsResponse> call, Throwable t) {
-                Log.e(TAG, "onFailure: ", t);
             }
         });
     }

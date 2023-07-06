@@ -49,8 +49,6 @@ import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class MapFragment extends Fragment implements EasyPermissions.PermissionCallbacks {
-
-    private static final String TAG = "TAG_MapFragment";
     private static final float DEFAULT_ZOOM = 15f;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 101;
 
