@@ -34,6 +34,9 @@ android {
 
         release {
             minifyEnabled true
+            shrinkResources true
+            buildConfigField "String", "GOOGLE_API_KEY", "\"${GOOGLE_API_KEY}\""
+            resValue "string", "GOOGLE_API_KEY", GOOGLE_API_KEY
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
