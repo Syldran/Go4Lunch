@@ -32,8 +32,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         if (sharedpreferences.getString(RANKBY, "prominence").equals("prominence")) {
             mBinding.radioButton.setChecked(true);
+            mBinding.tfRadius.setVisibility(View.VISIBLE);
+
         } else {
             mBinding.radioButton2.setChecked(true);
+            mBinding.tfRadius.setVisibility(View.GONE);
         }
 
         mBinding.radioButton2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

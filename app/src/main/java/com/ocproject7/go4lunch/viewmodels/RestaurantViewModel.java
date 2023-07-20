@@ -123,13 +123,13 @@ public class RestaurantViewModel extends ViewModel {
     public void fetchRestaurants(int radius, String rankBy) {
         String sLocation = mLocation.latitude + "," + mLocation.longitude;
         if (rankBy.equals("distance")) {
-            mRestaurantRepository.getRestaurants(sLocation, rankBy, restaurants -> {
+            mRestaurantRepository.getRestaurants(sLocation, "", rankBy, restaurants -> {
                 mRestaurants.setValue(restaurants);
                 fetchDetailsRestaurants();
                 getUsers();
             });
         } else if (rankBy.equals("prominence")) {
-            mRestaurantRepository.getRestaurants(sLocation, radius, rankBy, restaurants -> {
+            mRestaurantRepository.getRestaurants(sLocation, String.valueOf(radius), rankBy, restaurants -> {
                 mRestaurants.setValue(restaurants);
                 fetchDetailsRestaurants();
                 getUsers();

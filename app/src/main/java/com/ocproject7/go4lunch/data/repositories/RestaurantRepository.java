@@ -20,7 +20,7 @@ public class RestaurantRepository {
         this.placesApi = placesApi;
     }
 
-    public void getRestaurants(String location, int radius, String rankBy, OnGetRestaurants onGetRestaurantsCallBack) {
+    public void getRestaurants(String location, String radius, String rankBy, OnGetRestaurants onGetRestaurantsCallBack) {
         placesApi.getNearBy(location, radius, "restaurant", rankBy, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<NearbyResponse>() {
             @Override
             public void onResponse(@NonNull Call<NearbyResponse> call, @NonNull Response<NearbyResponse> response) {
@@ -37,22 +37,6 @@ public class RestaurantRepository {
         });
     }
 
-    public void getRestaurants(String location, String rankBy, OnGetRestaurants onGetRestaurantsCallBack) {
-        placesApi.getNearBy(location, "restaurant", rankBy, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<NearbyResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<NearbyResponse> call, @NonNull Response<NearbyResponse> response) {
-                if (response.code() == 200 && response.body() != null) {
-                    onGetRestaurantsCallBack.onGetRestaurantData(response.body().getResults());
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<NearbyResponse> call, Throwable t) {
-            }
-
-        });
-    }
 
     public void getDetailsRestaurant(String id, OnDetailsRestaurant onDetailsRestaurantCallBack) {
         placesApi.getDetails(id, BuildConfig.GOOGLE_API_KEY).enqueue(new Callback<DetailsResponse>() {

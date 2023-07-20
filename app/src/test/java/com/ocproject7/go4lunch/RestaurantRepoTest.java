@@ -83,7 +83,7 @@ public class RestaurantRepoTest {
         List<Restaurant> restoList = Arrays.asList(new Restaurant(), new Restaurant());
 
         Response<NearbyResponse> response = Response.success((mNearbyResponse));
-        when(mockedPlaces.getNearBy(anyString(), anyInt(), anyString(), anyString(), anyString())).thenReturn(mNearbyResponseCall);
+        when(mockedPlaces.getNearBy(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(mNearbyResponseCall);
         when(mNearbyResponse.getResults()).thenReturn(restoList);
         Mockito.doAnswer(new Answer() {
 
@@ -96,7 +96,7 @@ public class RestaurantRepoTest {
         }).when(mNearbyResponseCall).enqueue(any(Callback.class));
         restaurantRepository.getRestaurants(
                 "Paris",
-                1500,
+                "1500",
                 "prominence",
                 mockedOnGetRestaurants);
 

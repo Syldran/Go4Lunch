@@ -225,7 +225,7 @@ public class ViewModelTest {
 
         //when
         restaurantViewModel.fetchRestaurants(1500, "prominence");
-        verify(restaurantRepository).getRestaurants(anyString(), anyInt(), anyString(), onGetRestaurantCaptor.capture());
+        verify(restaurantRepository).getRestaurants(anyString(), anyString(), anyString(), onGetRestaurantCaptor.capture());
         OnGetRestaurants captorValue = onGetRestaurantCaptor.getValue();
         captorValue.onGetRestaurantData(restaurantListTest);
 

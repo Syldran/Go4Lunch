@@ -11,15 +11,7 @@ public interface PlacesApi {
     @GET("nearbysearch/json")
     Call<NearbyResponse> getNearBy(
             @Query("location") String location,
-            @Query("radius") int radius,
-            @Query("type") String type,
-            @Query("rankby") String rankby,
-            @Query("key") String key
-    );
-
-    @GET("nearbysearch/json")
-    Call<NearbyResponse> getNearBy(
-            @Query("location") String location,
+            @Query("radius") String radius,
             @Query("type") String type,
             @Query("rankby") String rankby,
             @Query("key") String key
